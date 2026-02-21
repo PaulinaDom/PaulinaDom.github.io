@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATP Tennis Analysis — Paulina Dominikowska</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0e1a14;
+      --surface: #14231a;
+      --surface2: #1b2e22;
+      --cream: #f5f0e8;
+      --cream-dim: #c8c0b0;
+      --green: #3d7a52;
+      --green-light: #5aad74;
+      --accent: #c8a84b;
+      --clay: #c4632a;
+      --grass: #3d9e5f;
+      --hard: #2a6ec4;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+    }
+
+    /* NAV */
+    nav {
+      padding: 1.5rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      background: rgba(14,26,20,0.95);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+    .nav-back {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--green-light);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: opacity 0.2s;
+    }
+    .nav-back:hover { opacity: 0.7; }
+    .nav-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--cream-dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .nav-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--green-light);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+    }
+
+    /* HERO */
+    .hero {
+      padding: 5rem 3rem 4rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .hero-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--green-light);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      line-height: 1.1;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    .hero-meta {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .meta-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      padding: 0.3rem 0.75rem;
+      border: 1px solid var(--green);
+      color: var(--green-light);
+      letter-spacing: 0.1em;
+      border-radius: 1px;
+    }
+    .hero-intro {
+      font-size: 1.05rem;
+      color: var(--cream-dim);
+      max-width: 640px;
+      line-height: 1.8;
+    }
+
+    /* HERO IMAGE */
+    .hero-image {
+      max-width: 900px;
+      margin: 0 auto 4rem;
+      padding: 0 3rem;
+    }
+    .hero-image figure {
+      position: relative;
+    }
+    .hero-image img {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .hero-image figcaption {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.63rem;
+      color: rgba(255,255,255,0.3);
+      margin-top: 0.6rem;
+      letter-spacing: 0.08em;
+    }
+
+    /* DIVIDER */
+    .divider {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 3rem;
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+      margin-bottom: 3rem;
+    }
+
+    /* SECTION */
+    .section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 3rem;
+    }
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--green-light);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .section h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      color: var(--cream);
+      margin-bottom: 1.2rem;
+    }
+    .section p {
+      color: var(--cream-dim);
+      margin-bottom: 1rem;
+      font-size: 0.97rem;
+    }
+
+    /* STAT CARDS */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.2rem;
+      color: var(--accent);
+      display: block;
+    }
+    .stat-desc {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--cream-dim);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+
+    /* FINDINGS */
+    .findings {
+      background: var(--surface);
+      border-left: 3px solid var(--green);
+      padding: 2rem 2.5rem;
+      margin: 2rem 0;
+    }
+    .finding-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      margin-bottom: 1.2rem;
+    }
+    .finding-item:last-child { margin-bottom: 0; }
+    .finding-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--green-light);
+      min-width: 24px;
+      margin-top: 0.1rem;
+    }
+    .finding-text {
+      font-size: 0.95rem;
+      color: var(--cream-dim);
+    }
+    .finding-text strong { color: var(--cream); font-weight: 500; }
+
+    /* SURFACE BADGES */
+    .surface-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 1.5rem 0;
+    }
+    .surface-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.5rem 1.2rem;
+      letter-spacing: 0.08em;
+    }
+    .surface-clay { background: rgba(196,99,42,0.15); border: 1px solid var(--clay); color: #e07840; }
+    .surface-grass { background: rgba(61,158,95,0.12); border: 1px solid var(--grass); color: #5aad74; }
+    .surface-hard { background: rgba(42,110,196,0.12); border: 1px solid var(--hard); color: #5a9aef; }
+
+    /* CODE BLOCK */
+    .code-section {
+      margin: 2rem 0;
+    }
+    .code-header {
+      background: var(--surface2);
+      padding: 0.8rem 1.5rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-bottom: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .code-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--green-light);
+      letter-spacing: 0.1em;
+    }
+    .code-lang {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.08em;
+    }
+    pre {
+      background: #0a1410;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 1.5rem;
+      overflow-x: auto;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: var(--cream-dim);
+    }
+    .kw { color: #7eb8f7; } /* keywords */
+    .fn { color: var(--green-light); } /* functions */
+    .cm { color: rgba(255,255,255,0.28); font-style: italic; } /* comments */
+    .st { color: var(--accent); } /* strings */
+    .nu { color: #e07840; } /* numbers */
+
+    /* SKILLS USED */
+    .skills-used {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .skill-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--cream-dim);
+      letter-spacing: 0.05em;
+    }
+    .skill-dot {
+      width: 5px;
+      height: 5px;
+      background: var(--green-light);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* CTA */
+    .cta-section {
+      max-width: 900px;
+      margin: 2rem auto 5rem;
+      padding: 0 3rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.85rem 2rem;
+      background: var(--green);
+      color: var(--cream);
+      text-decoration: none;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--green-light); }
+    .btn-outline {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.85rem 2rem;
+      border: 1px solid var(--green);
+      color: var(--green-light);
+      text-decoration: none;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover { background: rgba(61,122,82,0.15); }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 2rem 3rem;
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.1em;
+    }
+
+    @media (max-width: 640px) {
+      nav, .hero, .section, .hero-image, .cta-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .hero { padding-top: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-back">← Back to Portfolio</a>
+  <span class="nav-title">Project 01</span>
+  <a href="https://www.datacamp.com/datalab/w/637536c5-c054-4328-a38c-40a81e8a4d40" target="_blank" class="nav-link">View on DataCamp ↗</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">SQL Analysis · Project 01</div>
+  <h1>ATP Tennis Matches<br><em>2000 – 2024</em></h1>
+  <div class="hero-meta">
+    <span class="meta-tag">SQL</span>
+    <span class="meta-tag">Window Functions</span>
+    <span class="meta-tag">CTEs</span>
+    <span class="meta-tag">Pivot Tables</span>
+    <span class="meta-tag">Data Exploration</span>
+  </div>
+  <p class="hero-intro">
+    A deep-dive into 24 years of professional tennis, exploring who truly dominated the sport — and whether the data supports the GOAT debate. Using a Kaggle ATP dataset of all matches from 2000 to 2024, I set out to find the three greatest players of the era and track the arc of their careers.
+  </p>
+</div>
+
+<div class="hero-image">
+  <figure>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Wimbledon_Centre_Court.jpg/1280px-Wimbledon_Centre_Court.jpg"
+         alt="Wimbledon Centre Court"
+         style="width:100%;max-height:420px;object-fit:cover;display:block;border:1px solid rgba(255,255,255,0.08);"
+         onerror="this.parentElement.style.display='none'" />
+    <figcaption>Wimbledon Centre Court — image via Wikimedia Commons (CC BY-SA)</figcaption>
+  </figure>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+  <div class="section-label">The Question</div>
+  <h2>Who dominated tennis in the modern era?</h2>
+  <p>The ATP dataset covers every professional match from 2000 through 2024 — over two decades of data. The goal was to identify the top performers, then drill into the detail: surface preferences, Grand Slam accumulation, and signs of career decline.</p>
+  <p>One data quality issue I caught and fixed before analysis: a missing US Open 2019 final row that other analysts had flagged on Kaggle. I manually corrected this in Excel before importing — a small detail that reflects the real-world messiness of data work.</p>
+</div>
+
+<div class="section">
+  <div class="section-label">Key Findings</div>
+  <h2>What the data revealed</h2>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-num">24</span>
+      <span class="stat-desc">Years of data</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">3</span>
+      <span class="stat-desc">Undisputed GOATs</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">16</span>
+      <span class="stat-desc">Grand Slam gap between 3rd and 4th place</span>
+    </div>
+  </div>
+
+  <div class="findings">
+    <div class="finding-item">
+      <span class="finding-num">01</span>
+      <span class="finding-text"><strong>Djokovic, Nadal, and Federer</strong> are in a class of their own — the gap between 3rd and 4th place in Grand Slam titles is a staggering 16 titles, confirming their dominance statistically.</span>
+    </div>
+    <div class="finding-item">
+      <span class="finding-num">02</span>
+      <span class="finding-text"><strong>Surface specialization matters.</strong> Andy Murray ranks top-5 on grass and hard, but drops to 56th on clay. David Ferrer excels on clay (2nd) but falls off on grass (40th). The Big Three never fall outside the top 9 on any surface.</span>
+    </div>
+    <div class="finding-item">
+      <span class="finding-num">03</span>
+      <span class="finding-text"><strong>Federer had a 12-title head start.</strong> A rolling sum of Grand Slam wins shows that when Djokovic won his first Australian Open in 2008, Federer had already accumulated 12 titles — making Djokovic's eventual overtake even more remarkable.</span>
+    </div>
+  </div>
+
+
+</div>
+
+<div class="section">
+  <div class="section-label">SQL Techniques</div>
+  <h2>Selected queries</h2>
+  <p>Below are two queries that illustrate the kind of SQL used throughout this project — from window functions to CTEs with date calculations.</p>
+
+  <div class="code-section">
+    <div class="code-header">
+      <span class="code-title">Surface dominance ranking — CTE + Window Function</span>
+      <span class="code-lang">SQL</span>
+    </div>
+    <pre><span class="cm">-- Setting up a CTE that filters surface, groups by surface
+-- and winner, counts wins, then ranks within each surface</span>
+<span class="kw">WITH</span> wins_surface <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> Surface, Winner, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> count
+    <span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span>
+    <span class="kw">WHERE</span> Surface <span class="kw">IN</span> (<span class="st">'Clay'</span>, <span class="st">'Grass'</span>, <span class="st">'Hard'</span>)
+    <span class="kw">GROUP BY</span> Surface, Winner),
+
+wins_surface_ranked <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> Surface, Winner,
+        <span class="fn">RANK</span>() <span class="kw">OVER</span>(<span class="kw">PARTITION BY</span> Surface <span class="kw">ORDER BY</span> count <span class="kw">DESC</span>) <span class="kw">AS</span> rank_within_surface,
+        count
+    <span class="kw">FROM</span> wins_surface)
+
+<span class="kw">SELECT</span> Surface, Winner, rank_within_surface
+<span class="kw">FROM</span> wins_surface_ranked
+<span class="kw">WHERE</span> Winner <span class="kw">IN</span> (<span class="st">'Federer R.'</span>, <span class="st">'Nadal R.'</span>, <span class="st">'Djokovic N.'</span>, <span class="st">'Murray A.'</span>, <span class="st">'Ferrer D.'</span>);</pre>
+  </div>
+
+  <div class="code-section">
+    <div class="code-header">
+      <span class="code-title">Days since last ATP title — CTE + Date arithmetic</span>
+      <span class="code-lang">SQL</span>
+    </div>
+    <pre><span class="cm">-- CTE holds the date of each player's most recent ATP title
+-- then inner join back to calculate elapsed days</span>
+<span class="kw">WITH</span> last_atp_titles <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> Winner, <span class="fn">MAX</span>(Date) <span class="kw">AS</span> last_ATP_title
+    <span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span>
+    <span class="kw">WHERE</span> Winner <span class="kw">IN</span> (<span class="st">'Federer R.'</span>, <span class="st">'Nadal R.'</span>, <span class="st">'Djokovic N.'</span>)
+        <span class="kw">AND</span> Round = <span class="st">'The Final'</span>
+    <span class="kw">GROUP BY</span> Winner)
+
+<span class="kw">SELECT</span> atp.Winner,
+    last_atp_titles.last_atp_title,
+    (<span class="fn">now</span>()::<span class="kw">date</span> - Date::<span class="kw">date</span>) <span class="kw">AS</span> days_since_last_won_tournament,
+    atp.Tournament, atp.Player_1, atp.Player_2
+<span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span> <span class="kw">AS</span> atp
+<span class="kw">INNER JOIN</span> last_atp_titles
+    <span class="kw">ON</span> last_atp_titles.last_ATP_title = atp.Date
+        <span class="kw">AND</span> last_atp_titles.Winner = atp.Winner
+<span class="kw">ORDER BY</span> days_since_last_won_tournament <span class="kw">ASC</span>;</pre>
+  </div>
+</div>
+
+<div class="section">
+  <div class="skills-used">
+    <div class="section-label">SQL Functions Used</div>
+    <div class="skills-grid">
+      <div class="skill-item"><span class="skill-dot"></span>CTEs (WITH clauses)</div>
+      <div class="skill-item"><span class="skill-dot"></span>Window Functions (RANK, rolling SUM)</div>
+      <div class="skill-item"><span class="skill-dot"></span>PARTITION BY / ORDER BY</div>
+      <div class="skill-item"><span class="skill-dot"></span>CASE statements</div>
+      <div class="skill-item"><span class="skill-dot"></span>Pivot tables (manual CASE)</div>
+      <div class="skill-item"><span class="skill-dot"></span>JOINs (INNER JOIN)</div>
+      <div class="skill-item"><span class="skill-dot"></span>Date arithmetic & casting</div>
+      <div class="skill-item"><span class="skill-dot"></span>Aggregate functions</div>
+      <div class="skill-item"><span class="skill-dot"></span>ROLLUP</div>
+      <div class="skill-item"><span class="skill-dot"></span>Subqueries</div>
+      <div class="skill-item"><span class="skill-dot"></span>String functions</div>
+      <div class="skill-item"><span class="skill-dot"></span>UNION / UNIONING</div>
+    </div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <a href="https://www.datacamp.com/datalab/w/637536c5-c054-4328-a38c-40a81e8a4d40" target="_blank" class="btn-primary">View Full Notebook on DataCamp ↗</a>
+  <a href="index.html" class="btn-outline">← Back to Portfolio</a>
+</div>
+
+<footer>© 2025 Paulina Dominikowska · Data Analyst Portfolio</footer>
+
+</body>
+</html>

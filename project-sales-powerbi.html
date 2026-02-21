@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sales Performance Dashboard — Paulina Dominikowska</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#0e1a14; --surface:#14231a; --surface2:#1b2e22;
+      --cream:#f5f0e8; --cream-dim:#b8b0a0;
+      --green:#3d7a52; --green-light:#5aad74; --accent:#c8a84b;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--cream); font-family:'DM Sans',sans-serif; font-weight:300; line-height:1.7; }
+    nav { padding:1.5rem 3rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); position:sticky; top:0; background:rgba(14,26,20,0.95); backdrop-filter:blur(10px); z-index:100; }
+    .nav-back { font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--green-light); text-decoration:none; letter-spacing:0.1em; transition:opacity 0.2s; }
+    .nav-back:hover { opacity:0.7; }
+    .nav-title { font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--cream-dim); letter-spacing:0.15em; text-transform:uppercase; }
+    .nav-ext { font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--green-light); text-decoration:none; }
+    .hero { padding:5rem 3rem 3rem; max-width:900px; margin:0 auto; }
+    .hero-label { font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--green-light); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:1.5rem; }
+    h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(2.2rem,5vw,3.5rem); line-height:1.1; margin-bottom:1.5rem; }
+    h1 em { font-style:italic; color:var(--accent); }
+    .meta-row { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:2rem; }
+    .meta-tag { font-family:'DM Mono',monospace; font-size:0.68rem; padding:0.3rem 0.75rem; border:1px solid var(--green); color:var(--green-light); letter-spacing:0.1em; }
+    .intro { font-size:1rem; color:var(--cream-dim); max-width:640px; line-height:1.85; }
+    .divider { max-width:900px; margin:2rem auto; padding:0 3rem; height:1px; background:rgba(255,255,255,0.07); }
+    .section { max-width:900px; margin:0 auto; padding:2rem 3rem; }
+    .section-label { font-family:'DM Mono',monospace; font-size:0.65rem; color:var(--green-light); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:1rem; }
+    h2 { font-family:'Cormorant Garamond',serif; font-size:1.8rem; margin-bottom:1.2rem; }
+    h3 { font-family:'DM Mono',monospace; font-size:0.78rem; letter-spacing:0.12em; color:var(--cream); text-transform:uppercase; margin:1.5rem 0 0.6rem; }
+    p { color:var(--cream-dim); font-size:0.97rem; margin-bottom:1rem; }
+    .arch-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1px; background:rgba(255,255,255,0.06); margin:2rem 0; }
+    .arch-card { background:var(--bg); padding:2rem; }
+    .arch-icon { font-size:1.3rem; margin-bottom:0.8rem; display:block; }
+    .arch-title { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--cream); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.6rem; }
+    .arch-text { font-size:0.85rem; color:var(--cream-dim); line-height:1.65; }
+    .dax-block { margin:1.5rem 0; }
+    .dax-header { background:var(--surface2); padding:0.8rem 1.5rem; border:1px solid rgba(255,255,255,0.08); border-bottom:none; display:flex; justify-content:space-between; }
+    .dax-title { font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--green-light); letter-spacing:0.1em; }
+    .dax-lang { font-family:'DM Mono',monospace; font-size:0.65rem; color:rgba(255,255,255,0.3); }
+    pre { background:#0a1410; border:1px solid rgba(255,255,255,0.08); padding:1.5rem; overflow-x:auto; font-family:'DM Mono',monospace; font-size:0.78rem; line-height:1.7; color:var(--cream-dim); }
+    .kw { color:#7eb8f7; } .fn { color:var(--green-light); } .cm { color:rgba(255,255,255,0.28); font-style:italic; } .st { color:var(--accent); }
+    .visuals-list { display:flex; flex-direction:column; gap:1rem; margin:1.5rem 0; }
+    .visual-row { display:grid; grid-template-columns:180px 1fr; gap:1.5rem; background:var(--surface); border:1px solid rgba(255,255,255,0.07); padding:1.2rem 1.5rem; align-items:start; }
+    .visual-name { font-family:'DM Mono',monospace; font-size:0.68rem; color:var(--green-light); letter-spacing:0.08em; line-height:1.4; }
+    .visual-desc { font-size:0.87rem; color:var(--cream-dim); line-height:1.6; }
+    .credit-note { background:rgba(200,168,75,0.08); border:1px solid rgba(200,168,75,0.2); padding:1rem 1.5rem; margin:1.5rem 0; font-family:'DM Mono',monospace; font-size:0.72rem; color:rgba(200,168,75,0.8); line-height:1.7; }
+    .skills-box { background:var(--surface); border:1px solid rgba(255,255,255,0.07); padding:2rem; margin:2rem 0; }
+    .skills-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:0.75rem; margin-top:1rem; }
+    .skill-item { display:flex; align-items:center; gap:0.6rem; font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--cream-dim); }
+    .skill-dot { width:5px; height:5px; background:var(--green-light); border-radius:50%; flex-shrink:0; }
+    .cta-section { max-width:900px; margin:2rem auto 5rem; padding:0 3rem; display:flex; gap:1rem; flex-wrap:wrap; }
+    .btn-primary { font-family:'DM Mono',monospace; font-size:0.75rem; padding:0.85rem 2rem; background:var(--green); color:var(--cream); text-decoration:none; letter-spacing:0.12em; text-transform:uppercase; transition:background 0.2s; }
+    .btn-primary:hover { background:var(--green-light); }
+    .btn-outline { font-family:'DM Mono',monospace; font-size:0.75rem; padding:0.85rem 2rem; border:1px solid var(--green); color:var(--green-light); text-decoration:none; letter-spacing:0.12em; text-transform:uppercase; transition:all 0.2s; }
+    .btn-outline:hover { background:rgba(61,122,82,0.15); }
+    footer { border-top:1px solid rgba(255,255,255,0.06); padding:2rem 3rem; text-align:center; font-family:'DM Mono',monospace; font-size:0.65rem; color:rgba(255,255,255,0.2); letter-spacing:0.1em; }
+    @media(max-width:640px) { nav,.hero,.section,.cta-section { padding-left:1.5rem; padding-right:1.5rem; } .visual-row { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-back">← Back to Portfolio</a>
+  <span class="nav-title">Project 04 — Power BI</span>
+  <a href="https://github.com/PaulinaDom/data-analyst-portfolio" target="_blank" class="nav-ext">GitHub ↗</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">Power BI · DAX · Star Schema · Project 04</div>
+  <h1>Sales Performance<br><em>YTD vs PYTD Dashboard</em></h1>
+  <div class="meta-row">
+    <span class="meta-tag">Power BI</span>
+    <span class="meta-tag">DAX</span>
+    <span class="meta-tag">Star Schema</span>
+    <span class="meta-tag">Time Intelligence</span>
+    <span class="meta-tag">Dynamic Switching</span>
+  </div>
+  <p class="intro">A sales analytics dashboard focused on Year-to-Date vs Prior Year-to-Date comparison, allowing dynamic switching between Sales, Quantity, and Gross Profit across time, country, customer, and product dimensions.</p>
+</div>
+
+<div class="credit-note" style="max-width:900px;margin:0 auto 0;padding-left:3rem;padding-right:3rem;">
+  ⚠ Based on a tutorial by Mo Chen (GitHub / YouTube). My own implementation — with focus on understanding and documenting each modelling and DAX decision from first principles.
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+  <div class="section-label">Data Architecture</div>
+  <h2>Star schema design</h2>
+  <p>The model follows Power BI best practices: a central fact table with one-to-many relationships to dimension tables, single-direction filtering, and a dedicated measures table for organization.</p>
+  <div class="arch-grid">
+    <div class="arch-card">
+      <span class="arch-icon">⬡</span>
+      <div class="arch-title">Fact_Sales</div>
+      <div class="arch-text">Central transactional table with Product_id, Account_id, Date, Sales_USD, Quantity, COGS_USD. 2022–2024 data.</div>
+    </div>
+    <div class="arch-card">
+      <span class="arch-icon">◻</span>
+      <div class="arch-title">Dim_Date</div>
+      <div class="arch-text">Custom calendar table built in DAX. Includes InPast calculated column for correct PYTD comparisons.</div>
+    </div>
+    <div class="arch-card">
+      <span class="arch-icon">◻</span>
+      <div class="arch-title">Dim_Customer</div>
+      <div class="arch-text">Account-level descriptive context, linked via Account_id.</div>
+    </div>
+    <div class="arch-card">
+      <span class="arch-icon">◻</span>
+      <div class="arch-title">Dim_Product</div>
+      <div class="arch-text">Product hierarchy: type and name for drill-down in waterfall charts.</div>
+    </div>
+    <div class="arch-card">
+      <span class="arch-icon">◻</span>
+      <div class="arch-title">Dim_Country</div>
+      <div class="arch-text">Geographical dimension enabling country-level performance analysis.</div>
+    </div>
+    <div class="arch-card">
+      <span class="arch-icon">⊘</span>
+      <div class="arch-title">Slicer_Values</div>
+      <div class="arch-text">Disconnected table (Sales / Quantity / Gross Profit) powering dynamic metric switching across all visuals.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">DAX Design</div>
+  <h2>Time intelligence &amp; dynamic measures</h2>
+
+  <h3>InPast — enabling correct PYTD</h3>
+  <div class="dax-block">
+    <div class="dax-header"><span class="dax-title">Calculated column on Dim_Date</span><span class="dax-lang">DAX</span></div>
+    <pre><span class="cm">-- Identifies dates eligible for prior-year comparison</span>
+Inpast =
+<span class="kw">VAR</span> lastsalesdate = <span class="fn">MAX</span>(Fact_Sales[Date])
+<span class="kw">VAR</span> lastsalesdatePY = <span class="fn">EDATE</span>(lastsalesdate, -12)
+<span class="kw">RETURN</span>
+    Dim_Date[Date] <= lastsalesdatePY</pre>
+  </div>
+
+  <h3>YTD &amp; PYTD measures</h3>
+  <div class="dax-block">
+    <div class="dax-header"><span class="dax-title">Year-to-date and Prior Year-to-date — Sales</span><span class="dax-lang">DAX</span></div>
+    <pre>YTD_Sales = <span class="fn">TOTALYTD</span>([Sales], Fact_Sales[Date])
+
+PYTD_Sales =
+<span class="fn">CALCULATE</span>(
+    [Sales],
+    <span class="fn">SAMEPERIODLASTYEAR</span>(Dim_Date[Date]),
+    Dim_Date[Inpast] = <span class="fn">TRUE</span>
+)</pre>
+  </div>
+
+  <h3>Dynamic switching — one slicer controls all visuals</h3>
+  <div class="dax-block">
+    <div class="dax-header"><span class="dax-title">Switch measures using SELECTEDVALUE() + SWITCH()</span><span class="dax-lang">DAX</span></div>
+    <pre>Switch_YTD =
+<span class="kw">VAR</span> selected_value = <span class="fn">SELECTEDVALUE</span>(Slicer_values[Values])
+<span class="kw">VAR</span> result =
+    <span class="fn">SWITCH</span>(selected_value,
+        <span class="st">"Sales"</span>,        [YTD_Sales],
+        <span class="st">"Quantity"</span>,     [YTD_Quantity],
+        <span class="st">"Gross Profit"</span>, [YTD_GrossProfit],
+        <span class="fn">BLANK</span>()
+    )
+<span class="kw">RETURN</span> result
+
+<span class="cm">-- Difference measure for KPI cards and waterfall chart</span>
+YTD vs PYTD = [Switch_YTD] - [Switch_PYTD]</pre>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Visual Design</div>
+  <h2>5 chart types, all dynamic</h2>
+  <div class="visuals-list">
+    <div class="visual-row">
+      <div class="visual-name">KPI Cards</div>
+      <div class="visual-desc">YTD, PYTD, YTD vs PYTD difference, and % Gross Profit. Conditional formatting: red background for negative variance, green for positive.</div>
+    </div>
+    <div class="visual-row">
+      <div class="visual-name">Column &amp; Line Chart</div>
+      <div class="visual-desc">X-axis: month from Dim_Date. Columns: Switch_YTD, Line: Switch_PYTD. Enables trend comparison across the selected year and metric.</div>
+    </div>
+    <div class="visual-row">
+      <div class="visual-name">Scatter Plot</div>
+      <div class="visual-desc">X: Switch_YTD, Y: % Gross Profit, Values: Account. Average reference lines on both axes. Zoom enabled. Identifies which accounts drive volume vs margin.</div>
+    </div>
+    <div class="visual-row">
+      <div class="visual-name">Waterfall Chart</div>
+      <div class="visual-desc">Y: YTD vs PYTD. Category hierarchy: Month → Country → Product Type → Product Name. Full drill-down from time period to individual product.</div>
+    </div>
+    <div class="visual-row">
+      <div class="visual-name">Treemap</div>
+      <div class="visual-desc">Country by YTD vs PYTD. Bottom-N filter shows 10 worst-performing countries. Cross-filters with all other visuals for integrated exploration.</div>
+    </div>
+  </div>
+
+  <p style="font-size:0.87rem; margin-top:1rem;">All visual titles and the report title use DAX SELECTEDVALUE() measures — so every title dynamically reflects whatever metric and year is currently selected.</p>
+
+  <div class="skills-box">
+    <div class="section-label">Techniques Used</div>
+    <div class="skills-grid">
+      <div class="skill-item"><span class="skill-dot"></span>Star schema data modelling</div>
+      <div class="skill-item"><span class="skill-dot"></span>Manual relationship creation</div>
+      <div class="skill-item"><span class="skill-dot"></span>DAX calendar table</div>
+      <div class="skill-item"><span class="skill-dot"></span>TOTALYTD / SAMEPERIODLASTYEAR</div>
+      <div class="skill-item"><span class="skill-dot"></span>SWITCH + SELECTEDVALUE</div>
+      <div class="skill-item"><span class="skill-dot"></span>Disconnected slicer tables</div>
+      <div class="skill-item"><span class="skill-dot"></span>Conditional formatting (KPIs)</div>
+      <div class="skill-item"><span class="skill-dot"></span>Dynamic DAX titles</div>
+      <div class="skill-item"><span class="skill-dot"></span>Drill-down hierarchy</div>
+      <div class="skill-item"><span class="skill-dot"></span>Bottom-N visual filters</div>
+      <div class="skill-item"><span class="skill-dot"></span>Cross-filtering visuals</div>
+      <div class="skill-item"><span class="skill-dot"></span>Power Query cleaning</div>
+    </div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <a href="https://github.com/PaulinaDom/data-analyst-portfolio/tree/main/Analyzing-sales-data" target="_blank" class="btn-primary">View on GitHub ↗</a>
+  <a href="index.html" class="btn-outline">← Back to Portfolio</a>
+</div>
+
+<footer>© 2025 Paulina Dominikowska · Data Analyst Portfolio</footer>
+</body>
+</html>

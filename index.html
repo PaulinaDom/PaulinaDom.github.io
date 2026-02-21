@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paulina Dominikowska — Data Analyst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f4ef;
+  --bg-dark: #1a2418;
+  --cream: #f0ebe0;
+  --ink: #1a2418;
+  --green: #2d5a3d;
+  --green-mid: #3d7a52;
+  --green-light: #5a9e6f;
+  --green-pale: #d4e8da;
+  --green-deep: #0f1f14;
+  --accent: #c8a84b;
+  --grey: #6b7b70;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 4rem;
+  background: rgba(247,244,239,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+.nav-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  color: var(--green);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+.nav-links a {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  color: var(--grey);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--green); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0;
+}
+.hero-left {
+  background: var(--green-deep);
+  padding: 8rem 5rem 6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-left::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(61,122,82,0.15) 0%, transparent 70%);
+}
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 0.25em;
+  color: var(--green-light);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.2s forwards;
+}
+.hero-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 5vw, 4.5rem);
+  font-weight: 300;
+  line-height: 1.05;
+  color: var(--cream);
+  margin-bottom: 0.5rem;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.35s forwards;
+}
+.hero-name em {
+  font-style: italic;
+  color: var(--accent);
+}
+.hero-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--green-light);
+  text-transform: uppercase;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.5s forwards;
+}
+.hero-desc {
+  font-size: 1rem;
+  color: rgba(240,235,224,0.65);
+  max-width: 400px;
+  line-height: 1.8;
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.65s forwards;
+}
+.hero-cta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.8s forwards;
+}
+.btn-primary {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.85rem 2rem;
+  background: var(--green-mid);
+  color: var(--cream);
+  text-decoration: none;
+  border: 1px solid var(--green-mid);
+  transition: all 0.2s;
+}
+.btn-primary:hover { background: var(--green-light); border-color: var(--green-light); }
+.btn-outline {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.85rem 2rem;
+  background: transparent;
+  color: var(--green-light);
+  text-decoration: none;
+  border: 1px solid rgba(90,158,111,0.4);
+  transition: all 0.2s;
+}
+.btn-outline:hover { border-color: var(--green-light); background: rgba(90,158,111,0.08); }
+
+.hero-right {
+  background: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 4rem;
+  gap: 3rem;
+}
+.photo-frame {
+  width: 280px;
+  height: 320px;
+  overflow: hidden;
+  border: 3px solid var(--green);
+  opacity: 0;
+  animation: fadeUp 0.7s 0.5s forwards;
+  image-rendering: -webkit-optimize-contrast;
+}
+.photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  image-rendering: crisp-edges;
+}
+.hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.7s forwards;
+}
+.stat-item {
+  text-align: center;
+  padding: 1.2rem;
+  background: white;
+  border: 1px solid rgba(0,0,0,0.07);
+}
+.stat-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem;
+  font-weight: 300;
+  color: var(--green);
+  line-height: 1;
+  display: block;
+}
+.stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  color: var(--grey);
+  text-transform: uppercase;
+  margin-top: 0.4rem;
+  display: block;
+}
+
+/* ── ABOUT ── */
+.about {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 7rem 5rem;
+  gap: 5rem;
+  background: white;
+}
+.about-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--green-mid);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.about h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 300;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 2rem;
+}
+.about h2 em { font-style: italic; color: var(--green); }
+.about p {
+  color: var(--grey);
+  font-size: 0.97rem;
+  line-height: 1.85;
+  margin-bottom: 1.2rem;
+}
+.about-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}
+.trait-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  padding: 0.4rem 0.85rem;
+  background: var(--green-pale);
+  color: var(--green);
+  border-radius: 1px;
+}
+.about-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+}
+.timeline-item {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+.timeline-dot {
+  width: 8px; height: 8px;
+  background: var(--green-mid);
+  border-radius: 50%;
+  margin-top: 0.5rem;
+  flex-shrink: 0;
+}
+.timeline-year {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--green-mid);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.2rem;
+}
+.timeline-text {
+  font-size: 0.92rem;
+  color: var(--grey);
+  line-height: 1.6;
+}
+.timeline-text strong { color: var(--ink); font-weight: 500; }
+
+/* ── SKILLS ── */
+.skills {
+  padding: 7rem 5rem;
+  background: var(--green-deep);
+}
+.skills-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 4rem;
+}
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.skills-header h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 300;
+  color: var(--cream);
+}
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.06);
+}
+.skill-category {
+  background: var(--green-deep);
+  padding: 2.5rem;
+  transition: background 0.2s;
+}
+.skill-category:hover { background: #162a1c; }
+.skill-icon {
+  font-size: 1.2rem;
+  color: var(--green-light);
+  display: block;
+  margin-bottom: 1rem;
+}
+.skill-category h3 {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
+  color: var(--cream);
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+.skill-list {
+  list-style: none;
+}
+.skill-list li {
+  font-size: 0.88rem;
+  color: rgba(240,235,224,0.5);
+  padding: 0.3rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding-left: 0.8rem;
+  position: relative;
+}
+.skill-list li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--green-light);
+  font-size: 0.7rem;
+}
+
+/* ── PROJECTS ── */
+.projects {
+  padding: 7rem 5rem;
+  background: var(--bg);
+}
+.projects-header {
+  display: flex;
+  align-items: baseline;
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+.projects-header h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 300;
+  color: var(--ink);
+}
+.projects-divider {
+  flex: 1;
+  height: 1px;
+  background: rgba(0,0,0,0.1);
+}
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+.project-card {
+  display: block;
+  text-decoration: none;
+  background: white;
+  border: 1px solid rgba(0,0,0,0.07);
+  padding: 2.5rem;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.project-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 3px;
+  background: var(--green-mid);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+.project-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+.project-card:hover::before { transform: scaleX(1); }
+.project-card.featured {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+  background: var(--green-deep);
+  color: var(--cream);
+  border-color: transparent;
+}
+.project-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem;
+  font-weight: 300;
+  color: rgba(0,0,0,0.06);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.project-card.featured .project-number { color: rgba(255,255,255,0.08); }
+.project-tech {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.63rem;
+  letter-spacing: 0.12em;
+  color: var(--green-mid);
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+.project-card.featured .project-tech { color: var(--green-light); }
+.project-card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 0.8rem;
+  line-height: 1.2;
+}
+.project-card.featured h3 { color: var(--cream); font-size: 1.8rem; }
+.project-card p {
+  font-size: 0.88rem;
+  color: var(--grey);
+  line-height: 1.75;
+  margin-bottom: 1.5rem;
+}
+.project-card.featured p { color: rgba(240,235,224,0.6); }
+.project-link {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--green-mid);
+  text-transform: uppercase;
+}
+.project-card.featured .project-link { color: var(--green-light); }
+.project-visual {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.viz-placeholder {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+}
+
+/* ── CONTACT ── */
+.contact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 7rem 5rem;
+  gap: 5rem;
+  background: var(--green-deep);
+}
+.contact-left h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 300;
+  color: var(--cream);
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+.contact-left h2 em { font-style: italic; color: var(--accent); }
+.contact-left p {
+  color: rgba(240,235,224,0.55);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  margin-bottom: 2.5rem;
+}
+.contact-links { display: flex; flex-direction: column; gap: 0.75rem; }
+.contact-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-left: 3px solid var(--green-mid);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.contact-link:hover { background: rgba(255,255,255,0.07); transform: translateX(4px); }
+.contact-link-icon {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--green-light);
+  text-transform: uppercase;
+  min-width: 70px;
+}
+.contact-link-text {
+  font-size: 0.88rem;
+  color: rgba(240,235,224,0.65);
+}
+.contact-right { display: flex; flex-direction: column; justify-content: center; gap: 2.5rem; }
+.availability-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  background: rgba(90,158,111,0.1);
+  border: 1px solid rgba(90,158,111,0.3);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: var(--green-light);
+  text-transform: uppercase;
+  width: fit-content;
+}
+.availability-dot {
+  width: 6px; height: 6px;
+  background: var(--green-light);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.location-info h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 300;
+  color: var(--cream);
+  margin-bottom: 0.8rem;
+}
+.location-info p {
+  font-size: 0.9rem;
+  color: rgba(240,235,224,0.5);
+  line-height: 1.75;
+}
+
+/* ── FOOTER ── */
+footer {
+  padding: 2rem 5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0a150d;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+footer p {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.2);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .about [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; gap: 2rem !important; }
+  nav { padding: 1rem 2rem; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-left { padding: 8rem 2rem 4rem; min-height: 60vh; }
+  .hero-right { padding: 3rem 2rem; }
+  .about { padding: 4rem 1.5rem; }
+  .about > div:first-child { grid-template-columns: 1fr; gap: 2rem; }
+  .contact { grid-template-columns: 1fr; gap: 3rem; padding: 4rem 2rem; }
+  .skills { padding: 4rem 2rem; }
+  .skills-grid { grid-template-columns: repeat(2, 1fr); }
+  .projects { padding: 4rem 2rem; }
+  .projects-grid { grid-template-columns: 1fr; }
+  .project-card.featured { grid-column: span 1; grid-template-columns: 1fr; }
+  footer { padding: 2rem; flex-direction: column; gap: 1rem; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Paulina Dominikowska</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Data Analyst Portfolio</div>
+    <h1 class="hero-name">Paulina<br><em>Dominikowska</em></h1>
+    <div class="hero-title">Electrical Engineer → Data Analyst · Munich</div>
+    <p class="hero-desc">
+      I turn complex data into clear decisions. Eight years of engineering precision, three years of deliberate data skill-building — now focused on analytics full-time.
+    </p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn-primary">View Projects</a>
+      <a href="#contact" class="btn-outline">Get in Touch</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="photo-frame">
+      <img src="PDO_picture.jpg" alt="Paulina Dominikowska" />
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-number">8+</span>
+        <span class="stat-label">Years Technical Experience</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">3</span>
+        <span class="stat-label">Years Learning Data</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">B2</span>
+        <span class="stat-label">German Level</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about" style="display:block; padding:7rem 5rem;">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:5rem; max-width:1100px; margin:0 auto 3rem;">
+    <div class="reveal">
+      <div class="about-label">About</div>
+      <h2>Engineer turned <em>analyst</em></h2>
+      <p>
+        My background is in electrical engineering — I spent years as a Technical Solution Engineer at Schneider Electric, working with complex datasets, tight deadlines, and technically demanding clients. Data was always central to what I did, even if the job title didn't say so.
+      </p>
+      <p>
+        Since March 2023 I've been building deliberately towards data analytics — SQL, Python, Power BI, Tableau — studied evenings and weekends while working full-time, and full-time since relocating to Munich in late 2024. I'm also currently enrolled in postgraduate studies in Data Analytics using SQL and Business Intelligence tools at the University of Warsaw.
+      </p>
+      <p>
+        I'm looking for a data analyst role where I can apply both my technical skills and my domain understanding of industrial and engineering environments.
+      </p>
+    </div>
+    <div class="about-right reveal">
+      <p style="color:var(--grey);font-size:0.95rem;line-height:1.85;">
+        I bring something most analysts don't have: genuine domain knowledge of how industrial and energy systems work. After 7 years translating engineering complexity into commercial decisions at Schneider Electric, I know how to ask the right questions of data — and how to communicate the answers to people who need to act on them.
+      </p>
+      <ul style="list-style:none; display:flex; flex-direction:column; gap:0.75rem; margin-top:1rem;">
+        <li style="display:flex; gap:0.8rem; align-items:flex-start; font-size:0.93rem; color:var(--grey);">
+          <span style="color:var(--green-mid); font-size:1rem; margin-top:0.05rem;">📍</span>
+          <span>Based in <strong style="color:var(--ink);">Munich, Germany</strong> — open to full-time analyst roles, hybrid or on-site. EU citizen, no visa required.</span>
+        </li>
+        <li style="display:flex; gap:0.8rem; align-items:flex-start; font-size:0.93rem; color:var(--grey);">
+          <span style="color:var(--green-mid); font-size:1rem; margin-top:0.05rem;">🎓</span>
+          <span>Currently studying <strong style="color:var(--ink);">Data Analytics</strong> (postgraduate, University of Warsaw) — SQL, Power BI, Tableau. German B2, English C1.</span>
+        </li>
+        <li style="display:flex; gap:0.8rem; align-items:flex-start; font-size:0.93rem; color:var(--grey);">
+          <span style="color:var(--green-mid); font-size:1rem; margin-top:0.05rem;">🗂</span>
+          <span>Continuously building and expanding my <strong style="color:var(--ink);">portfolio projects</strong> — SQL, Power BI, Tableau and Python analyses on real datasets.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- Soft skills — full width -->
+  <div style="max-width:1100px; margin:0 auto;" class="reveal">
+    <div class="about-traits">
+      <span class="trait-tag">Team player</span>
+      <span class="trait-tag">Analytical Skills</span>
+      <span class="trait-tag">Quick Learner</span>
+      <span class="trait-tag">Independent Way of Working</span>
+      <span class="trait-tag">Deadline-driven</span>
+      <span class="trait-tag">Detail-oriented</span>
+      <span class="trait-tag">Highly Organized</span>
+      <span class="trait-tag">Self-motivated</span>
+      <span class="trait-tag">Communication Skills</span>
+      <span class="trait-tag">Structured Way of Working</span>
+      <span class="trait-tag">AI-driven problem solving</span>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="skills" id="skills">
+  <div class="skills-header">
+    <span class="section-label" style="color:var(--green-light)">Skills</span>
+    <h2>The Toolkit</h2>
+  </div>
+  <div class="skills-grid">
+    <div class="skill-category reveal">
+      <span class="skill-icon">{ }</span>
+      <h3>SQL</h3>
+      <ul class="skill-list">
+        <li>Complex joins &amp; subqueries</li>
+        <li>Window functions</li>
+        <li>Stored procedures</li>
+        <li>Error handling &amp; transactions</li>
+        <li>Triggers</li>
+      </ul>
+    </div>
+    <div class="skill-category reveal">
+      <span class="skill-icon">⌘</span>
+      <h3>Python</h3>
+      <ul class="skill-list">
+        <li>Pandas &amp; NumPy</li>
+        <li>Data wrangling</li>
+        <li>Exploratory analysis</li>
+        <li>Jupyter notebooks</li>
+      </ul>
+    </div>
+    <div class="skill-category reveal">
+      <span class="skill-icon">◈</span>
+      <h3>Tableau</h3>
+      <ul class="skill-list">
+        <li>Level of Detail expressions</li>
+        <li>Dashboard design</li>
+        <li>Calculated fields</li>
+        <li>Public portfolio</li>
+      </ul>
+    </div>
+    <div class="skill-category reveal">
+      <span class="skill-icon">▦</span>
+      <h3>Power BI</h3>
+      <ul class="skill-list">
+        <li>DAX measures</li>
+        <li>Data modelling</li>
+        <li>Report design</li>
+        <li>PL-300 preparation</li>
+      </ul>
+    </div>
+    <div class="skill-category reveal">
+      <span class="skill-icon">⊞</span>
+      <h3>Excel</h3>
+      <ul class="skill-list">
+        <li>Advanced functions</li>
+        <li>Pivot tables</li>
+        <li>Data visualization</li>
+        <li>7+ years daily use</li>
+      </ul>
+    </div>
+    <div class="skill-category reveal">
+      <span class="skill-icon">∞</span>
+      <h3>Domain Knowledge</h3>
+      <ul class="skill-list">
+        <li>Electrical engineering</li>
+        <li>Industrial systems</li>
+        <li>Technical documentation</li>
+        <li>Client-facing delivery</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="projects" id="projects">
+  <div class="projects-header">
+    <h2>Selected Projects</h2>
+    <div class="projects-divider"></div>
+  </div>
+
+  <div class="projects-grid">
+
+    <!-- Project 01 — ATP Tennis -->
+    <a class="project-card featured reveal" href="project-tennis.html">
+      <div>
+        <div class="project-number">01</div>
+        <div class="project-tech">SQL · Window Functions · CTEs · Data Exploration</div>
+        <h3>Analysing ATP Tennis Matches 2000–2024</h3>
+        <p>
+          A deep-dive into 24 years of professional tennis data. Explored trends in player performance, surface preferences, and Grand Slam accumulation across the era — culminating in a statistically-backed answer to the GOAT debate.
+        </p>
+        <span class="project-link">View Project →</span>
+      </div>
+      <div class="project-visual">
+        <div class="viz-placeholder">SQL Analysis</div>
+      </div>
+    </a>
+
+    <!-- Project 02 — Tableau -->
+    <a class="project-card reveal" href="https://public.tableau.com/app/profile/paulina.dominikowska/vizzes" target="_blank" rel="noopener">
+      <div class="project-number">02</div>
+      <div class="project-tech">Tableau · LODs · Dashboard Design</div>
+      <h3>Tableau Public Portfolio</h3>
+      <p>
+        A collection of interactive dashboards built with Tableau — demonstrating proficiency with Level of Detail expressions, calculated fields, and communicating insights through clean, purposeful visual design.
+      </p>
+      <span class="project-link">View on Tableau Public →</span>
+    </a>
+
+    <!-- Project 03 — Health SQL + Power BI -->
+    <a class="project-card reveal" href="project-health-sql.html">
+      <div class="project-number">03</div>
+      <div class="project-tech">SQL · Power BI · DAX · Healthcare Data</div>
+      <h3>Health Insurance Data Analysis</h3>
+      <p>
+        End-to-end analysis of insurance data — SQL for exploration and data preparation, Power BI for interactive reporting. A full-stack analytics workflow from raw data to business insight.
+      </p>
+      <span class="project-link">View Project →</span>
+    </a>
+
+    <!-- Project 04 — Sales Power BI -->
+    <a class="project-card reveal" href="project-sales-powerbi.html">
+      <div class="project-number">04</div>
+      <div class="project-tech">Power BI · DAX · Data Modelling · Sales Analytics</div>
+      <h3>Sales Performance Dashboard</h3>
+      <p>
+        A Power BI sales analytics report covering performance KPIs, trend analysis, and data modelling — built as part of PL-300 certification preparation with real-world reporting structure.
+      </p>
+      <span class="project-link">View Project →</span>
+    </a>
+
+  </div>
+</section>
+
+
+<!-- EXPERIENCE & EDUCATION -->
+<section id="experience" style="background:white; padding:7rem 5rem;">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5rem;">
+
+      <!-- EXPERIENCE -->
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.2em;color:var(--green-mid);text-transform:uppercase;margin-bottom:1.5rem;">Experience</div>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;color:var(--ink);margin-bottom:2.5rem;">Where I've<br><em style="font-style:italic;color:var(--green);">worked</em></h2>
+
+        <div style="border-left:2px solid var(--green-pale);padding-left:2rem;display:flex;flex-direction:column;gap:2.5rem;">
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--green-mid);letter-spacing:0.1em;margin-bottom:0.3rem;">07.2021 – 09.2025</div>
+            <div style="font-family:'DM Sans',sans-serif;font-weight:500;font-size:1rem;color:var(--ink);margin-bottom:0.2rem;">Technical Solution Engineer</div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--grey);letter-spacing:0.05em;margin-bottom:0.8rem;">Schneider Electric Polska</div>
+            <div style="font-size:0.88rem;color:var(--grey);line-height:1.75;">Analyzed and prepared large commercial and technical datasets (thousands of rows in Excel) to support pricing, quotation, and sales decisions. Built structured Excel models to compare solutions, costs, and delivery scenarios. Prepared recurring reports for sales and management using CRM data. Collaborated with sales engineers, contractors, and designers to translate business requirements into data-supported solutions.</div>
+          </div>
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--green-mid);letter-spacing:0.1em;margin-bottom:0.3rem;">07.2018 – 06.2021</div>
+            <div style="font-family:'DM Sans',sans-serif;font-weight:500;font-size:1rem;color:var(--ink);margin-bottom:0.2rem;">TC Engineer</div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--grey);letter-spacing:0.05em;margin-bottom:0.8rem;">Schneider Electric Polska</div>
+            <div style="font-size:0.88rem;color:var(--grey);line-height:1.75;">Supported sales teams through preparation of structured datasets that were the basis of quotations and configurations. Collaborated with sales engineers and contractors to translate business requirements into solutions. Coordinated and supervised intern team activities and workload planning.</div>
+          </div>
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--green-mid);letter-spacing:0.1em;margin-bottom:0.3rem;">03.2018 – 06.2018</div>
+            <div style="font-family:'DM Sans',sans-serif;font-weight:500;font-size:1rem;color:var(--ink);margin-bottom:0.2rem;">KNX Sales Engineer</div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--grey);letter-spacing:0.05em;">Schneider Electric Polska</div>
+          </div>
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--green-mid);letter-spacing:0.1em;margin-bottom:0.3rem;">04.2017 – 02.2018</div>
+            <div style="font-family:'DM Sans',sans-serif;font-weight:500;font-size:1rem;color:var(--ink);margin-bottom:0.2rem;">Intern in Sales Support</div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--grey);letter-spacing:0.05em;">Schneider Electric Polska</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EDUCATION -->
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.2em;color:var(--green-mid);text-transform:uppercase;margin-bottom:1.5rem;">Education &amp; Courses</div>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;color:var(--ink);margin-bottom:2.5rem;">How I've<br><em style="font-style:italic;color:var(--green);">learned</em></h2>
+
+        <div style="border-left:2px solid var(--green-pale);padding-left:2rem;display:flex;flex-direction:column;gap:2rem;">
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--green-mid);letter-spacing:0.1em;margin-bottom:0.3rem;">10.2025 – present</div>
+            <div style="font-family:'DM Sans',sans-serif;font-weight:500;font-size:1rem;color:var(--ink);margin-bottom:0.2rem;">Postgraduate Studies</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--ink);margin-bottom:0.2rem;">Data Analytics using SQL &amp; Business Intelligence Tools</div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--grey);letter-spacing:0.05em;">University of Warsaw</div>
+          </div>
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--green-mid);letter-spacing:0.1em;margin-bottom:0.3rem;">10.2017 – 07.2020</div>
+            <div style="font-family:'DM Sans',sans-serif;font-weight:500;font-size:1rem;color:var(--ink);margin-bottom:0.2rem;">Master of Engineering</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--ink);margin-bottom:0.2rem;">Electrical Engineering</div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--grey);letter-spacing:0.05em;">Gdańsk University of Technology</div>
+          </div>
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--green-mid);letter-spacing:0.1em;margin-bottom:0.3rem;">10.2013 – 01.2017</div>
+            <div style="font-family:'DM Sans',sans-serif;font-weight:500;font-size:1rem;color:var(--ink);margin-bottom:0.2rem;">Bachelor of Engineering</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--ink);margin-bottom:0.2rem;">Power Engineering</div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--grey);letter-spacing:0.05em;">Gdańsk University of Technology</div>
+          </div>
+
+          <div style="margin-top:0.5rem;padding-top:1.5rem;border-top:1px solid var(--green-pale);">
+            <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--grey);letter-spacing:0.1em;margin-bottom:1rem;text-transform:uppercase;">Courses &amp; Training</div>
+            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+              <div style="display:flex;justify-content:space-between;font-size:0.85rem;"><span style="color:var(--ink);">DataCamp — Data Analysis in Power BI</span><span style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--grey);">05.2025</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.85rem;"><span style="color:var(--ink);">DataCamp — Associate Data Analyst in SQL</span><span style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--grey);">12.2024</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.85rem;"><span style="color:var(--ink);">Tableau Certified Data Analyst Training</span><span style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--grey);">09.2024</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.85rem;"><span style="color:var(--ink);">DataCamp — Data Analyst with Python</span><span style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--grey);">08.2024</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-left reveal">
+    <h2>Let's work<br><em>together</em></h2>
+    <p>
+      I'm actively looking for a data analyst role in Munich. If you're building something data-driven and need someone who combines technical depth with structured thinking and genuine curiosity — I'd love to talk.
+    </p>
+    <div class="contact-links">
+      <a class="contact-link" href="https://github.com/PaulinaDom/data-analyst-portfolio" target="_blank">
+        <span class="contact-link-icon">GitHub</span>
+        <span class="contact-link-text">PaulinaDom / data-analyst-portfolio</span>
+      </a>
+      <a class="contact-link" href="https://public.tableau.com/app/profile/paulina.dominikowska/vizzes" target="_blank">
+        <span class="contact-link-icon">Tableau</span>
+        <span class="contact-link-text">Public Tableau Portfolio</span>
+      </a>
+      <a class="contact-link" href="mailto:paulina.dominikowska1994@gmail.com">
+        <span class="contact-link-icon">Email</span>
+        <span class="contact-link-text">paulina.dominikowska1994@gmail.com</span>
+      </a>
+      <a class="contact-link" href="https://www.linkedin.com/in/paulina-dominikowska-b4a913268/" target="_blank">
+        <span class="contact-link-icon">LinkedIn</span>
+        <span class="contact-link-text">linkedin.com/in/paulina-dominikowska</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="contact-right reveal">
+    <div class="availability-badge">
+      <span class="availability-dot"></span>
+      Open to opportunities
+    </div>
+    <div class="location-info">
+      <h3>Based in Munich, Germany</h3>
+      <p>
+        Polish native, English fluent, German B2 and improving actively.
+        Open to full-time analyst roles and hybrid work arrangements.
+        EU citizen — no visa requirements.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 Paulina Dominikowska</p>
+  <p>Data Analyst · Munich, Germany</p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

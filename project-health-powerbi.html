@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Health Insurance Power BI — Paulina Dominikowska</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0e1a14; --surface: #14231a; --surface2: #1b2e22;
+      --cream: #f5f0e8; --cream-dim: #b8b0a0;
+      --green: #3d7a52; --green-light: #5aad74; --accent: #c8a84b;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--cream); font-family:'DM Sans',sans-serif; font-weight:300; line-height:1.7; }
+    nav { padding:1.5rem 3rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); position:sticky; top:0; background:rgba(14,26,20,0.95); backdrop-filter:blur(10px); z-index:100; }
+    .nav-back { font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--green-light); text-decoration:none; letter-spacing:0.1em; transition:opacity 0.2s; }
+    .nav-back:hover { opacity:0.7; }
+    .nav-title { font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--cream-dim); letter-spacing:0.15em; text-transform:uppercase; }
+    .nav-ext { font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--green-light); text-decoration:none; letter-spacing:0.08em; }
+    .hero { padding:5rem 3rem 3rem; max-width:900px; margin:0 auto; }
+    .hero-label { font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--green-light); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:1.5rem; }
+    h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(2.2rem,5vw,3.5rem); line-height:1.1; margin-bottom:1.5rem; }
+    h1 em { font-style:italic; color:var(--accent); }
+    .meta-row { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:2rem; }
+    .meta-tag { font-family:'DM Mono',monospace; font-size:0.68rem; padding:0.3rem 0.75rem; border:1px solid var(--green); color:var(--green-light); letter-spacing:0.1em; }
+    .intro { font-size:1rem; color:var(--cream-dim); max-width:640px; line-height:1.85; }
+    .divider { max-width:900px; margin:2rem auto; padding:0 3rem; height:1px; background:rgba(255,255,255,0.07); }
+    .section { max-width:900px; margin:0 auto; padding:2rem 3rem; }
+    .section-label { font-family:'DM Mono',monospace; font-size:0.65rem; color:var(--green-light); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:1rem; }
+    h2 { font-family:'Cormorant Garamond',serif; font-size:1.8rem; margin-bottom:1.2rem; }
+    p { color:var(--cream-dim); font-size:0.97rem; margin-bottom:1rem; }
+    .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin:2rem 0; }
+    .stat-card { background:var(--surface); border:1px solid rgba(255,255,255,0.07); padding:1.5rem; text-align:center; }
+    .stat-num { font-family:'Cormorant Garamond',serif; font-size:2.2rem; color:var(--accent); display:block; }
+    .stat-desc { font-family:'DM Mono',monospace; font-size:0.63rem; color:var(--cream-dim); letter-spacing:0.1em; text-transform:uppercase; margin-top:0.3rem; }
+    .findings { background:var(--surface); border-left:3px solid var(--green); padding:2rem 2.5rem; margin:2rem 0; }
+    .finding-item { display:flex; gap:1rem; margin-bottom:1.2rem; }
+    .finding-item:last-child { margin-bottom:0; }
+    .finding-num { font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--green-light); min-width:24px; margin-top:0.1rem; }
+    .finding-text { font-size:0.95rem; color:var(--cream-dim); }
+    .finding-text strong { color:var(--cream); font-weight:500; }
+    .visuals-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; margin:2rem 0; }
+    .visual-card { background:var(--surface); border:1px solid rgba(255,255,255,0.07); padding:1.5rem; }
+    .visual-name { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--green-light); letter-spacing:0.08em; margin-bottom:0.5rem; }
+    .visual-desc { font-size:0.87rem; color:var(--cream-dim); line-height:1.6; }
+    .dax-block { margin:1.5rem 0; }
+    .dax-header { background:var(--surface2); padding:0.8rem 1.5rem; border:1px solid rgba(255,255,255,0.08); border-bottom:none; display:flex; justify-content:space-between; }
+    .dax-title { font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--green-light); letter-spacing:0.1em; }
+    .dax-lang { font-family:'DM Mono',monospace; font-size:0.65rem; color:rgba(255,255,255,0.3); }
+    pre { background:#0a1410; border:1px solid rgba(255,255,255,0.08); padding:1.5rem; overflow-x:auto; font-family:'DM Mono',monospace; font-size:0.8rem; line-height:1.7; color:var(--cream-dim); }
+    .kw { color:#7eb8f7; } .fn { color:var(--green-light); } .cm { color:rgba(255,255,255,0.28); font-style:italic; } .st { color:var(--accent); }
+    .skills-box { background:var(--surface); border:1px solid rgba(255,255,255,0.07); padding:2rem; margin:2rem 0; }
+    .skills-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:0.75rem; margin-top:1rem; }
+    .skill-item { display:flex; align-items:center; gap:0.6rem; font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--cream-dim); }
+    .skill-dot { width:5px; height:5px; background:var(--green-light); border-radius:50%; flex-shrink:0; }
+    .credit-note { background:rgba(200,168,75,0.08); border:1px solid rgba(200,168,75,0.2); padding:1rem 1.5rem; margin:1.5rem 0; font-family:'DM Mono',monospace; font-size:0.72rem; color:rgba(200,168,75,0.8); line-height:1.7; }
+    .cta-section { max-width:900px; margin:2rem auto 5rem; padding:0 3rem; display:flex; gap:1rem; flex-wrap:wrap; }
+    .btn-primary { font-family:'DM Mono',monospace; font-size:0.75rem; padding:0.85rem 2rem; background:var(--green); color:var(--cream); text-decoration:none; letter-spacing:0.12em; text-transform:uppercase; transition:background 0.2s; }
+    .btn-primary:hover { background:var(--green-light); }
+    .btn-outline { font-family:'DM Mono',monospace; font-size:0.75rem; padding:0.85rem 2rem; border:1px solid var(--green); color:var(--green-light); text-decoration:none; letter-spacing:0.12em; text-transform:uppercase; transition:all 0.2s; }
+    .btn-outline:hover { background:rgba(61,122,82,0.15); }
+    footer { border-top:1px solid rgba(255,255,255,0.06); padding:2rem 3rem; text-align:center; font-family:'DM Mono',monospace; font-size:0.65rem; color:rgba(255,255,255,0.2); letter-spacing:0.1em; }
+    @media(max-width:640px) { nav,.hero,.section,.cta-section { padding-left:1.5rem; padding-right:1.5rem; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-back">← Back to Portfolio</a>
+  <span class="nav-title">Project 03 — Power BI</span>
+  <a href="https://github.com/PaulinaDom/data-analyst-portfolio" target="_blank" class="nav-ext">GitHub ↗</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">Power BI · DAX · Project 03</div>
+  <h1>Analysing Patients'<br><em>Health Insurance Data</em></h1>
+  <div class="meta-row">
+    <span class="meta-tag">Power BI</span>
+    <span class="meta-tag">Power Query</span>
+    <span class="meta-tag">DAX</span>
+    <span class="meta-tag">Data Cleaning</span>
+    <span class="meta-tag">Healthcare Data</span>
+  </div>
+  <p class="intro">An interactive 6-page Power BI report exploring how age, gender, BMI, smoking status, and family size drive health insurance charges — turning a raw Kaggle dataset into a navigable analytical story.</p>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+  <div class="section-label">The Question</div>
+  <h2>What drives insurance charges?</h2>
+  <p>The dataset, sourced from Kaggle, contains 1,338 health insurance records with attributes including age, sex, BMI, number of children, smoking status, region, and total charges. The goal was to build a comprehensive patient profile overview and identify which factors most significantly impact what people pay.</p>
+  <p>Data was prepared in Power Query — column profiling, index columns, and custom BMI and age bins were added before any modelling began.</p>
+</div>
+
+<div class="section">
+  <div class="section-label">Key Findings</div>
+  <h2>What the data revealed</h2>
+  <div class="stats-row">
+    <div class="stat-card"><span class="stat-num">50/50</span><span class="stat-desc">Gender split</span></div>
+    <div class="stat-card"><span class="stat-num">20.5%</span><span class="stat-desc">Smokers in dataset</span></div>
+    <div class="stat-card"><span class="stat-num">4×</span><span class="stat-desc">Higher avg charges for smokers</span></div>
+    <div class="stat-card"><span class="stat-num">49%</span><span class="stat-desc">Of total charges from smokers</span></div>
+  </div>
+  <div class="findings">
+    <div class="finding-item"><span class="finding-num">01</span><span class="finding-text"><strong>Smoking is the dominant cost driver.</strong> Smokers represent only 20.5% of patients but account for 49% of all charges. Average smoker charges are 4× higher; median charges nearly 5× higher than non-smokers.</span></div>
+    <div class="finding-item"><span class="finding-num">02</span><span class="finding-text"><strong>Charges rise consistently with age</strong> across average, median, and total measures — a clear linear trend visible across all pages.</span></div>
+    <div class="finding-item"><span class="finding-num">03</span><span class="finding-text"><strong>81.9% of patients are overweight</strong>, rising by ~10 percentage points with age. Overweight patients contribute to 86% of total charges.</span></div>
+    <div class="finding-item"><span class="finding-num">04</span><span class="finding-text"><strong>Patients with 1–3 children</strong> tend to have the highest insurance charges — possibly reflecting family coverage and broader risk profiles.</span></div>
+    <div class="finding-item"><span class="finding-num">05</span><span class="finding-text"><strong>Scatter plots confirm</strong> that smokers sit in a consistently higher charge band than non-smokers at every BMI level, ruling out BMI as the primary explanation.</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Report Design</div>
+  <h2>6 interactive pages</h2>
+  <p>The report uses arrow navigation buttons in the top-right corner of each page for clean UX. Slicers and cross-filtering enable dynamic exploration throughout.</p>
+  <div class="visuals-grid">
+    <div class="visual-card"><div class="visual-name">Bar &amp; Column Charts</div><div class="visual-desc">Age group comparisons, charge breakdowns by smoking status, BMI category, and region.</div></div>
+    <div class="visual-card"><div class="visual-name">Line &amp; Combo Charts</div><div class="visual-desc">Charge trends by age with overlaid averages and medians for clear longitudinal reading.</div></div>
+    <div class="visual-card"><div class="visual-name">Scatter Plots</div><div class="visual-desc">Smoker vs. non-smoker charge distribution with BMI on one axis — confirming smoking as primary driver.</div></div>
+    <div class="visual-card"><div class="visual-name">Pie Charts &amp; Cards</div><div class="visual-desc">Gender balance, smoking share, and high-level KPI cards for at-a-glance context.</div></div>
+    <div class="visual-card"><div class="visual-name">Tables</div><div class="visual-desc">Detailed record views with conditional formatting to surface outliers.</div></div>
+    <div class="visual-card"><div class="visual-name">Slicers &amp; Nav Buttons</div><div class="visual-desc">Dynamic filtering and page navigation enabling multi-dimensional self-service exploration.</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">DAX Measures</div>
+  <h2>Selected measures</h2>
+
+  <div class="dax-block">
+    <div class="dax-header"><span class="dax-title">Average charges for non-smokers — CALCULATE()</span><span class="dax-lang">DAX</span></div>
+    <pre><span class="cm">-- Using CALCULATE to filter context before aggregating</span>
+Avg Charges Non-Smokers =
+<span class="fn">CALCULATE</span>(
+    <span class="fn">AVERAGE</span>(insurance[charges]),
+    insurance[smoker] = <span class="st">"no"</span>
+)</pre>
+  </div>
+
+  <div class="dax-block">
+    <div class="dax-header"><span class="dax-title">Count of patients by BMI weight category</span><span class="dax-lang">DAX</span></div>
+    <pre><span class="cm">-- BMI bins created in Power Query; counted here per category</span>
+Count Overweight =
+<span class="fn">CALCULATE</span>(
+    <span class="fn">COUNTROWS</span>(insurance),
+    insurance[bmi_category] = <span class="st">"Overweight"</span>
+)</pre>
+  </div>
+
+  <div class="skills-box">
+    <div class="section-label">Techniques Used</div>
+    <div class="skills-grid">
+      <div class="skill-item"><span class="skill-dot"></span>Power Query data cleaning</div>
+      <div class="skill-item"><span class="skill-dot"></span>Column profiling &amp; validation</div>
+      <div class="skill-item"><span class="skill-dot"></span>Custom bins (age &amp; BMI)</div>
+      <div class="skill-item"><span class="skill-dot"></span>CALCULATE() with filters</div>
+      <div class="skill-item"><span class="skill-dot"></span>MIN / MAX / AVERAGE measures</div>
+      <div class="skill-item"><span class="skill-dot"></span>Conditional formatting</div>
+      <div class="skill-item"><span class="skill-dot"></span>Multi-page report design</div>
+      <div class="skill-item"><span class="skill-dot"></span>Navigation buttons &amp; slicers</div>
+    </div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <a href="https://github.com/PaulinaDom/data-analyst-portfolio/tree/main/Analyzing-insurance-data/Power-BI" target="_blank" class="btn-primary">View on GitHub ↗</a>
+  <a href="project-health-sql.html" class="btn-outline">See SQL Analysis of Same Data →</a>
+</div>
+
+<footer>© 2025 Paulina Dominikowska · Data Analyst Portfolio</footer>
+</body>
+</html>
