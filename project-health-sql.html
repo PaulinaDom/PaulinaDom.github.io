@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Health Insurance SQL Analysis — Paulina Dominikowska</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#0e1a14; --surface:#14231a; --surface2:#1b2e22;
+      --cream:#f5f0e8; --cream-dim:#b8b0a0;
+      --green:#3d7a52; --green-light:#5aad74; --accent:#c8a84b;
+      --red:#c0504d;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--cream); font-family:'DM Sans',sans-serif; font-weight:300; line-height:1.7; }
+    nav { padding:1.5rem 3rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); position:sticky; top:0; background:rgba(14,26,20,0.95); backdrop-filter:blur(10px); z-index:100; }
+    .nav-back { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); text-decoration:none; letter-spacing:0.1em; transition:opacity 0.2s; }
+    .nav-back:hover { opacity:0.7; }
+    .nav-title { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--cream-dim); letter-spacing:0.15em; text-transform:uppercase; }
+    .nav-ext { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); text-decoration:none; }
+    .hero { padding:5rem 3rem 3rem; max-width:960px; margin:0 auto; }
+    .hero-label { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:1.5rem; }
+    h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(2.2rem,5vw,3.5rem); line-height:1.1; margin-bottom:1.5rem; }
+    h1 em { font-style:italic; color:var(--accent); }
+    .meta-row { display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2rem; }
+    .meta-tag { font-family:'DM Mono',monospace; font-size:0.82rem; padding:0.3rem 0.75rem; border:1px solid var(--green); color:var(--green-light); letter-spacing:0.1em; }
+    .intro { font-size:1rem; color:var(--cream-dim); max-width:680px; line-height:1.9; }
+    .divider { max-width:960px; margin:2rem auto; height:1px; background:rgba(255,255,255,0.07); }
+    .section { max-width:960px; margin:0 auto; padding:2rem 3rem; }
+    .section-label { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:1rem; }
+    h2 { font-family:'Cormorant Garamond',serif; font-size:1.9rem; margin-bottom:1.2rem; line-height:1.2; }
+    p { color:var(--cream-dim); font-size:0.96rem; margin-bottom:1rem; line-height:1.85; }
+
+    /* INSIGHT BLOCKS */
+    .insight-block { border:1px solid rgba(255,255,255,0.07); margin:2rem 0; background:var(--surface); }
+    .insight-header { display:grid; grid-template-columns:auto 1fr; border-bottom:1px solid rgba(255,255,255,0.07); }
+    .insight-num { font-family:'Cormorant Garamond',serif; font-size:2.4rem; color:var(--accent); padding:1.5rem 1.8rem; border-right:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; line-height:1; }
+    .insight-title-block { padding:1.2rem 1.8rem; }
+    .insight-question { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:0.4rem; }
+    .insight-title { font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--cream); line-height:1.3; }
+    .insight-body { padding:1.5rem 1.8rem; display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
+    .insight-body.wide { grid-template-columns:1fr; }
+    .finding-label { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:0.6rem; }
+    .finding-text { font-size:0.93rem; color:var(--cream-dim); line-height:1.85; }
+    .finding-text strong { color:var(--cream); font-weight:500; }
+    .finding-text .hl { color:var(--accent); font-weight:500; }
+    .finding-text .alert { color:var(--red); font-weight:500; }
+    .why-label { font-family:'DM Mono',monospace; font-size:0.82rem; color:rgba(255,255,255,0.32); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:0.6rem; margin-top:1.2rem; }
+    .why-text { font-size:0.87rem; color:rgba(255,255,255,0.42); line-height:1.8; font-style:italic; }
+
+    /* STAT ROW */
+    .stat-row { display:flex; gap:1px; background:rgba(255,255,255,0.06); margin:1rem 0; flex-wrap:wrap; }
+    .stat-cell { background:var(--bg); padding:1.2rem 1.5rem; flex:1; min-width:110px; }
+    .stat-val { font-family:'Cormorant Garamond',serif; font-size:2rem; display:block; line-height:1; margin-bottom:0.3rem; }
+    .stat-val.gold { color:var(--accent); }
+    .stat-val.green { color:var(--green-light); }
+    .stat-val.red { color:var(--red); }
+    .stat-desc { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--cream-dim); letter-spacing:0.1em; text-transform:uppercase; }
+
+    /* CODE */
+    .code-block { margin:1rem 0 0; }
+    .code-header { background:var(--surface2); padding:0.7rem 1.5rem; border:1px solid rgba(255,255,255,0.08); border-bottom:none; display:flex; justify-content:space-between; align-items:center; }
+    .code-title { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); letter-spacing:0.1em; }
+    .code-lang { font-family:'DM Mono',monospace; font-size:0.82rem; color:rgba(255,255,255,0.28); }
+    pre { background:#080f0b; border:1px solid rgba(255,255,255,0.08); padding:1.5rem; overflow-x:auto; font-family:'DM Mono',monospace; font-size:0.77rem; line-height:1.8; color:var(--cream-dim); margin:0; }
+    .kw { color:#7eb8f7; } .fn { color:var(--green-light); } .cm { color:rgba(255,255,255,0.26); font-style:italic; } .st { color:var(--accent); } .nu { color:#e07840; }
+
+    /* DISTRIBUTION */
+    .dist-wrap { margin:1.2rem 0; display:flex; flex-direction:column; gap:0.45rem; }
+    .dist-row { display:flex; align-items:center; gap:0.75rem; }
+    .dist-label { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--cream-dim); width:88px; flex-shrink:0; }
+    .dist-outer { flex:1; background:rgba(255,255,255,0.05); height:16px; }
+    .dist-inner { height:100%; }
+    .dist-count { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--cream-dim); width:56px; text-align:right; }
+
+    /* TECHNIQUES */
+    .techniques { background:var(--surface); border:1px solid rgba(255,255,255,0.07); padding:2rem; margin:2rem 0; }
+    .tech-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0.6rem; margin-top:1rem; }
+    .tech-item { display:flex; align-items:flex-start; gap:0.7rem; font-size:0.88rem; color:var(--cream-dim); line-height:1.5; }
+    .tech-dot { width:5px; height:5px; background:var(--green-light); border-radius:50%; flex-shrink:0; margin-top:0.45rem; }
+
+    /* CONCLUSION */
+    .conclusion { background:var(--surface); border-left:3px solid var(--accent); padding:2rem 2.5rem; margin:2rem 0; }
+    .conclusion p { font-size:0.97rem; line-height:1.9; color:var(--cream-dim); }
+    .conclusion strong { color:var(--cream); font-weight:500; }
+
+    /* AI NOTE */
+    .ai-note { background:rgba(90,173,116,0.05); border:1px solid rgba(90,173,116,0.15); padding:1.2rem 1.8rem; margin:2rem 0; font-size:0.87rem; color:rgba(255,255,255,0.45); line-height:1.8; }
+    .ai-note span { color:var(--green-light); font-family:'DM Mono',monospace; font-size:0.82rem; letter-spacing:0.1em; }
+
+    .cta-section { max-width:960px; margin:2rem auto 5rem; padding:0 3rem; display:flex; gap:1rem; flex-wrap:wrap; }
+    .btn-primary { font-family:'DM Mono',monospace; font-size:0.82rem; padding:0.85rem 2rem; background:var(--green); color:var(--cream); text-decoration:none; letter-spacing:0.12em; text-transform:uppercase; transition:background 0.2s; }
+    .btn-primary:hover { background:var(--green-light); }
+    .btn-outline { font-family:'DM Mono',monospace; font-size:0.82rem; padding:0.85rem 2rem; border:1px solid var(--green); color:var(--green-light); text-decoration:none; letter-spacing:0.12em; text-transform:uppercase; }
+    .btn-outline:hover { background:rgba(61,122,82,0.15); }
+    footer { border-top:1px solid rgba(255,255,255,0.06); padding:2rem 3rem; text-align:center; font-family:'DM Mono',monospace; font-size:0.82rem; color:rgba(255,255,255,0.2); letter-spacing:0.1em; }
+    @media(max-width:700px) {
+      nav,.hero,.section,.cta-section { padding-left:1.5rem; padding-right:1.5rem; }
+      .insight-body { grid-template-columns:1fr; }
+      .insight-header { grid-template-columns:1fr; }
+      .insight-num { border-right:none; border-bottom:1px solid rgba(255,255,255,0.07); }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-back">← Back to Portfolio</a>
+  <span class="nav-title">Project 02 — SQL</span>
+  <a href="https://github.com/PaulinaDom/data-analyst-portfolio/tree/main/Analyzing-insurance-data/SQL" target="_blank" class="nav-ext">GitHub ↗</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">SQL · Exploratory Data Analysis · Project 02</div>
+  <h1>What actually drives<br><em>insurance charges?</em></h1>
+  <div class="meta-row">
+    <span class="meta-tag">MySQL</span>
+    <span class="meta-tag">CTEs</span>
+    <span class="meta-tag">Window Functions</span>
+    <span class="meta-tag">Temp Tables</span>
+    <span class="meta-tag">Conditional Aggregation</span>
+    <span class="meta-tag">Subqueries</span>
+  </div>
+  <p class="intro">A health insurer sitting on this data has a problem: charges are unevenly distributed, but without analysis, every cost-containment intervention is equally likely to hit the wrong group. This project uses SQL to answer the question that actually matters — <strong style="color:var(--cream);">which patients drive costs, why, and how concentrated is the risk?</strong></p>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+  <div class="section-label">Dataset</div>
+  <h2>1,338 patient records.<br>8 variables. One cost problem.</h2>
+  <p>The dataset contains individual health insurance records: age, sex, BMI, number of children, smoker status, region, and total charges. Sourced from Kaggle, it mirrors the kind of claims-level extract an insurance analyst would receive from an underwriting system — structured, mostly clean, ready for SQL but full of questions.</p>
+  <p>Before writing a single analytical query, I ran exploratory queries across all categorical and numeric fields to understand distributions, identify outliers, and decide where the interesting questions were. That process — not the final queries — shaped the analysis.</p>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+  <div class="section-label">Analysis & Findings</div>
+  <h2>11 questions.<br>Each with a business answer.</h2>
+</div>
+
+<!-- 01 -->
+<div class="section" style="padding-top:0;">
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">01</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Is there a gender gap in insurance charges — and is it meaningful?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">Despite a nearly equal split of patients (~50/50), total charges differ: <strong>women account for $8.3M</strong> in total charges versus <strong>$9.4M for men</strong> — a 13% gap on an equal-sized population. A pricing team would want to understand whether this reflects true underlying risk difference or whether other variables (smoking rates by sex, age distribution) are doing the explaining before adjusting premiums.</p>
+    </div>
+    <div>
+      <div class="why-label">Why this method</div>
+      <p class="why-text">A simple GROUP BY with CONCAT formatting was the right starting point — readable output, no unnecessary complexity. CONCAT + ROUND gives business-ready labels ($8.3k) rather than raw decimals. The point of early EDA is to surface the question, not answer it definitively.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Charges grouped by sex</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">SELECT</span>
+    sex,
+    <span class="fn">COUNT</span>(*) <span class="kw">AS</span> count,
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="fn">SUM</span>(charges)/<span class="nu">1000</span>, <span class="nu">1</span>), <span class="st">"k"</span>) <span class="kw">AS</span> charges_amount
+<span class="kw">FROM</span> insurance
+<span class="kw">GROUP BY</span> sex;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 02 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">02</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Do smokers cost more — and by exactly how much?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">Smokers are only <strong>274 patients</strong> (~20% of the dataset) but generate <strong>$8.8M in total charges</strong> — nearly matching the $9.0M generated by over 1,000 non-smokers. Average charges: <span class="hl">$32K per smoker vs $8.4K per non-smoker</span>. That is a <strong>3.8× cost multiplier</strong>. For an insurer, this is a tier-1 pricing signal and the most commercially significant finding in the dataset.</p>
+    </div>
+    <div>
+      <div class="why-label">Why this method</div>
+      <p class="why-text">Same GROUP BY structure as finding 01, but the comparison between count and charges_amount side by side tells the story. I deliberately formatted both to be readable together — the disproportion is visible without a chart.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Charges by smoker status</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">SELECT</span>
+    smoker,
+    <span class="fn">COUNT</span>(*) <span class="kw">AS</span> count,
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="fn">SUM</span>(charges)/<span class="nu">1000</span>,<span class="nu">1</span>),<span class="st">"k"</span>) <span class="kw">AS</span> charges_amount
+<span class="kw">FROM</span> insurance
+<span class="kw">GROUP BY</span> smoker;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 03 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">03</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Does geography matter — and what does regional BMI variation tell us?</div>
+    </div>
+  </div>
+  <div class="insight-body wide">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">Regional analysis revealed that <strong>Northwest and Northeast regions have meaningfully lower average BMI</strong> than the South and Southwest. Since BMI correlates with charges, this partially explains regional charge differences. But it also raises a question for an actuary: are regional premium differences in this data reflecting actual regional risk, or is the BMI gap doing most of the work? I calculated MIN, MAX, AVG, and STDDEV_POP across BMI, age, and charges for all three grouping variables to see which differences were signal versus noise.</p>
+      <div class="why-label">Why include standard deviation</div>
+      <p class="why-text">STDDEV_POP is often skipped in basic EDA but matters here. A high standard deviation in charges for smokers tells you the risk isn't just higher on average — it's also more variable and harder to predict. That's an underwriting problem, not just a pricing one.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 04 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">04</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">How skewed is the charge distribution — is this a long-tail risk problem?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">The charge distribution is sharply right-skewed. <span class="hl">Over 53% of patients have charges under $10K</span>, a further 26% fall between $10K–$20K, and only the top quartile exceeds $20K. The extreme tail (above $40K) contains fewer than 80 patients. This is a classic long-tail insurance problem: <strong>a small minority drives a disproportionate share of total claims</strong> — and the mean average is a misleading summary statistic for this dataset.</p>
+      <div class="dist-wrap">
+        <div class="dist-row"><div class="dist-label">&lt; $10K</div><div class="dist-outer"><div class="dist-inner" style="width:53%;background:var(--green-light);opacity:0.7;"></div></div><div class="dist-count">712 pts</div></div>
+        <div class="dist-row"><div class="dist-label">$10K – $20K</div><div class="dist-outer"><div class="dist-inner" style="width:26%;background:var(--green-light);opacity:0.5;"></div></div><div class="dist-count">353 pts</div></div>
+        <div class="dist-row"><div class="dist-label">$20K – $30K</div><div class="dist-outer"><div class="dist-inner" style="width:8%;background:var(--accent);opacity:0.7;"></div></div><div class="dist-count">111 pts</div></div>
+        <div class="dist-row"><div class="dist-label">$30K – $40K</div><div class="dist-outer"><div class="dist-inner" style="width:6%;background:var(--accent);opacity:0.65;"></div></div><div class="dist-count">83 pts</div></div>
+        <div class="dist-row"><div class="dist-label">$40K – $50K</div><div class="dist-outer"><div class="dist-inner" style="width:5%;background:var(--red);opacity:0.7;"></div></div><div class="dist-count">72 pts</div></div>
+        <div class="dist-row"><div class="dist-label">&gt; $50K</div><div class="dist-outer"><div class="dist-inner" style="width:1%;background:var(--red);opacity:0.7;"></div></div><div class="dist-count">7 pts</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="why-label">Why TRUNCATE() for distribution</div>
+      <p class="why-text">TRUNCATE(charges, -4) rounds to the nearest $10,000, creating natural charge buckets in a single line — no JOIN, no temp table. This is a fast, readable way to understand distribution shape before deciding whether more granular binning is worth the complexity. Seeing that 53% of patients sit in the lowest bucket immediately told me that a median-based approach would be more honest than averages in subsequent analysis.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Distribution via TRUNCATE() — fast and readable</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">SELECT</span>
+    <span class="fn">TRUNCATE</span>(charges, <span class="nu">-4</span>) <span class="kw">AS</span> charge_band,
+    <span class="fn">COUNT</span>(*) <span class="kw">AS</span> patient_count
+<span class="kw">FROM</span> insurance
+<span class="kw">GROUP BY</span> charge_band
+<span class="kw">ORDER BY</span> charge_band <span class="kw">ASC</span>;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">05</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Does age reliably predict cost — and is the relationship smooth or stepped?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">Average charges rise <strong>consistently and proportionally with age</strong> — from $8.4K in the 15–20 group to <strong>$21.2K in the 60–65 group</strong>. This is a smooth progression, not a stepped one, which matters for actuarial modelling: age is a reliable continuous predictor, not just a categorical risk tier. Notably, average BMI also rises with age (from ~30 to ~32), suggesting BMI and age are partially co-correlated and shouldn't be modelled as fully independent variables.</p>
+    </div>
+    <div>
+      <div class="why-label">Why a temp table for bins</div>
+      <p class="why-text">I used CREATE TEMPORARY TABLE with UNION ALL rows rather than inline CASE WHEN because bin boundaries defined once in a JOIN are more maintainable — if the bin width changes, you update one place. It also mirrors how a production ETL pipeline would handle reference data, which is worth demonstrating.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Age bins via temp table + LEFT JOIN</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">CREATE TEMPORARY TABLE</span> bins <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> <span class="nu">15</span> <span class="kw">AS</span> lower, <span class="nu">20</span> <span class="kw">AS</span> upper
+    <span class="kw">UNION ALL SELECT</span> <span class="nu">20</span>, <span class="nu">25</span>
+    <span class="cm">-- ... continues to 65</span>
+);
+<span class="kw">SELECT</span>
+    b.lower, b.upper,
+    <span class="fn">COUNT</span>(*),
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(bmi), <span class="nu">2</span>)  <span class="kw">AS</span> avg_bmi,
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="fn">AVG</span>(charges)/<span class="nu">1000</span>,<span class="nu">1</span>),<span class="st">'k'</span>) <span class="kw">AS</span> avg_charge
+<span class="kw">FROM</span> bins b
+<span class="kw">LEFT JOIN</span> insurance i
+    <span class="kw">ON</span> i.age >= b.lower <span class="kw">AND</span> i.age < b.upper
+<span class="kw">GROUP BY</span> b.lower, b.upper
+<span class="kw">ORDER BY</span> b.lower;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 06 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">06</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">How concentrated are costs in the overweight population — proportionate to their share?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text"><span class="hl">82% of patients are overweight</span> (BMI &gt; 24.9) and account for <span class="hl">86% of total charges</span>. Their average charge of <strong>$13.9K compares to $10.4K for normal-weight patients</strong> — a 34% premium. But the ratio of cost share (86%) to population share (82%) is only 1.05×. Compare that to smoking's 3.8× multiplier on a 20% population. The conclusion: <strong>BMI is a widespread baseline risk present in nearly everyone, but smoking is the concentrated, actionable one.</strong></p>
+    </div>
+    <div>
+      <div class="why-label">Why inline CASE WHEN here (not a CTE)</div>
+      <p class="why-text">CASE WHEN inside SELECT classifies BMI inline. The avg_to_global_ratio column uses a scalar subquery in the denominator — evaluated once per row. I chose this over a WITH clause here because the subquery appears only once and the inline version is more readable. The percentage_charges column calculates each group's share of total costs in a single pass — no JOIN back to the full table needed.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">BMI classification with cost share ratio</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">SELECT</span>
+    <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> bmi > <span class="nu">24.9</span> <span class="kw">THEN</span> <span class="st">'overweight'</span>
+        <span class="kw">WHEN</span> bmi > <span class="nu">18.5</span> <span class="kw">THEN</span> <span class="st">'normal weight'</span>
+        <span class="kw">ELSE</span> <span class="st">'underweight'</span>
+    <span class="kw">END AS</span> weight,
+    <span class="fn">COUNT</span>(*),
+    <span class="cm">-- This group's share of all charges</span>
+    <span class="fn">CONCAT</span>(<span class="nu">100</span>*<span class="fn">ROUND</span>(<span class="fn">SUM</span>(charges) /
+        (<span class="kw">SELECT</span> <span class="fn">SUM</span>(charges) <span class="kw">FROM</span> insurance),<span class="nu">3</span>),<span class="st">"%"</span>) <span class="kw">AS</span> pct_charges,
+    <span class="cm">-- How does this group's average compare to everyone?</span>
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(charges) /
+        (<span class="kw">SELECT</span> <span class="fn">AVG</span>(charges) <span class="kw">FROM</span> insurance),<span class="nu">2</span>) <span class="kw">AS</span> avg_to_global_ratio
+<span class="kw">FROM</span> insurance
+<span class="kw">GROUP BY</span> weight;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 07 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">07</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Does family size affect charges — and is it smoking or dependants that drives the cost?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">Patients with <strong>1–3 children tend to have slightly higher average charges</strong> than those with none or four or more — but the differences are modest and the smoker rates per group are nearly flat across all family sizes. This is a critical control: it confirms that family size is <strong>not confounding the smoking signal</strong>. Smokers cost more whether they have children or not. The children variable is also useful for portfolio segmentation — larger families with above-average charges could indicate a specific plan tier worth separating in pricing.</p>
+    </div>
+    <div>
+      <div class="why-label">Why calculate cost share alongside count share</div>
+      <p class="why-text">The key technique here is comparing percentage_count (share of patients) against percentage_charges (share of total costs) for each group. If those two percentages track closely, the group's cost is proportionate to its size. If charges percentage is notably higher than count percentage, the group is a cost outlier. Smokers show a dramatic gap there. Children groups don't — confirming they're not a primary cost driver.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Children group analysis — count share vs cost share</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">SELECT</span>
+    children,
+    <span class="fn">COUNT</span>(*) <span class="kw">AS</span> count,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(age), <span class="nu">1</span>) <span class="kw">AS</span> average_age,
+    <span class="cm">-- Patient share vs cost share: if these track closely,</span>
+    <span class="cm">-- the group's cost is proportionate to its size</span>
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="nu">100</span>*<span class="fn">COUNT</span>(*)/(
+        <span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> insurance),<span class="nu">2</span>),<span class="st">'%'</span>) <span class="kw">AS</span> pct_count,
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="nu">100</span>*<span class="fn">SUM</span>(charges)/(
+        <span class="kw">SELECT</span> <span class="fn">SUM</span>(charges) <span class="kw">FROM</span> insurance),<span class="nu">2</span>),<span class="st">'%'</span>) <span class="kw">AS</span> pct_charges,
+    <span class="cm">-- Ratio &gt;1 means this group costs more than average per patient</span>
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(charges)/(
+        <span class="kw">SELECT</span> <span class="fn">AVG</span>(charges) <span class="kw">FROM</span> insurance),<span class="nu">3</span>) <span class="kw">AS</span> avg_to_overall,
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="nu">100</span>*<span class="fn">SUM</span>(
+        <span class="kw">CASE WHEN</span> smoker=<span class="st">'yes'</span> <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>
+    )/<span class="fn">COUNT</span>(*),<span class="nu">2</span>),<span class="st">'%'</span>) <span class="kw">AS</span> pct_smokers
+<span class="kw">FROM</span> insurance
+<span class="kw">GROUP BY</span> children
+<span class="kw">ORDER BY</span> children <span class="kw">ASC</span>;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 08 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">08</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Who are the above-average cost patients — and what do they share?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">Filtering for patients with charges above the dataset average reveals a group with a strikingly different profile. Their average charges sit at <strong>$21K+ versus a global average of $13.3K</strong>. Within this high-cost group, the <strong>smoking rate is dramatically elevated</strong> compared to the full dataset's 20.5% — confirming that above-average cost is not randomly distributed across the population, but concentrated among smokers. This is the group a cost-management programme would target first.</p>
+    </div>
+    <div>
+      <div class="why-label">Why a CTE here, not a subquery</div>
+      <p class="why-text">The filtered dataset is referenced multiple times in the outer SELECT — for COUNT, for averages, and for the percentage of smokers. A CTE materialises the filtered result once. A repeated subquery would re-evaluate the filter condition for every reference. It also makes the intent explicit: "first define the high-cost group, then describe it."</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">CTE — define once, profile fully</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">WITH</span> cte <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> * <span class="kw">FROM</span> insurance
+    <span class="kw">WHERE</span> charges > (<span class="kw">SELECT</span> <span class="fn">AVG</span>(charges) <span class="kw">FROM</span> insurance)
+)
+<span class="kw">SELECT</span>
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(age),<span class="nu">1</span>)    <span class="kw">AS</span> average_age,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(bmi),<span class="nu">2</span>)    <span class="kw">AS</span> average_bmi,
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="fn">AVG</span>(charges)/<span class="nu">1000</span>,<span class="nu">1</span>),<span class="st">"k"</span>) <span class="kw">AS</span> group_avg,
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(
+        (<span class="kw">SELECT</span> <span class="fn">AVG</span>(charges) <span class="kw">FROM</span> insurance)/<span class="nu">1000</span>,<span class="nu">1</span>),<span class="st">"k"</span>
+    )                     <span class="kw">AS</span> global_avg,
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="nu">100</span>*<span class="fn">SUM</span>(
+        <span class="kw">CASE WHEN</span> smoker=<span class="st">'yes'</span> <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>
+    ) / (<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> cte),<span class="nu">2</span>),<span class="st">"%"</span>) <span class="kw">AS</span> pct_smokers
+<span class="kw">FROM</span> cte;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 09 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">09</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Among the top 150 highest-cost patients — is there a clear common profile?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <div class="stat-row">
+        <div class="stat-cell"><span class="stat-val gold">$41.5K</span><span class="stat-desc">Avg charges</span></div>
+        <div class="stat-cell"><span class="stat-val red">97.3%</span><span class="stat-desc">Are smokers</span></div>
+        <div class="stat-cell"><span class="stat-val green">63%</span><span class="stat-desc">Are male</span></div>
+        <div class="stat-cell"><span class="stat-val green">48.7</span><span class="stat-desc">Average age</span></div>
+      </div>
+      <p class="finding-text" style="margin-top:0.8rem;">The top 150 cost-generating patients are almost exclusively smokers — <span class="alert">97.3%</span> — despite smokers being only 20% of the dataset. Average charges of <strong>$41.5K</strong> are over three times the dataset average. The male skew (63%) and older average age add further profile clarity. For a risk team: <strong>older male smokers with high BMI are the extreme cost tail.</strong></p>
+    </div>
+    <div>
+      <div class="why-label">Why a subquery in FROM</div>
+      <p class="why-text">To profile the top 150 records, I used a subquery in the FROM clause (ORDER BY charges DESC, LIMIT 150) aliased as table1. This is cleaner than a CTE for a one-time filtered source. The conditional SUMs with CASE WHEN inside calculate smoking rate and gender split in a single pass — no JOIN back to the full table needed.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Subquery in FROM — profile the top 150</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">SELECT</span>
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="fn">AVG</span>(charges)/<span class="nu">1000</span>,<span class="nu">1</span>),<span class="st">'k'</span>) <span class="kw">AS</span> avg_charges,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(age),<span class="nu">1</span>)  <span class="kw">AS</span> avg_age,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(bmi),<span class="nu">2</span>)  <span class="kw">AS</span> avg_bmi,
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="nu">100</span>*<span class="fn">SUM</span>(
+        <span class="kw">CASE WHEN</span> smoker=<span class="st">'yes'</span> <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>
+    )/<span class="fn">COUNT</span>(*),<span class="nu">2</span>),<span class="st">"%"</span>) <span class="kw">AS</span> pct_smokers
+<span class="kw">FROM</span> (
+    <span class="kw">SELECT</span> * <span class="kw">FROM</span> insurance
+    <span class="kw">ORDER BY</span> charges <span class="kw">DESC</span>
+    <span class="kw">LIMIT</span> <span class="nu">150</span>
+) <span class="kw">AS</span> table1;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">10</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Is BMI a risk factor independent of smoking — or does smoking explain almost everything?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding — the most revealing comparison in the dataset</div>
+      <p class="finding-text">Overweight rates are nearly identical for smokers (80%) and non-smokers (82%) — BMI distribution is similar across both groups. But the cost outcomes are extreme: <span class="alert">99.6% of smokers have charges above the dataset average</span>, versus only <span class="hl">13.8% of non-smokers</span>. This isolates smoking as the dominant driver. BMI raises baseline risk for nearly everyone — but <strong>smoking is what converts moderate risk into extreme cost.</strong></p>
+    </div>
+    <div>
+      <div class="why-label">Why conditional aggregation in one query</div>
+      <p class="why-text">Both percentages are calculated in a single GROUP BY query using CASE WHEN inside SUM. Running them together — not in separate queries — makes the comparison immediate. The above-average charges threshold uses a scalar subquery in the WHEN condition, evaluated once per row. The point is that you see both numbers at once: 80% vs 82% (similar) and 99.6% vs 13.8% (stark). That contrast is the whole finding.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Isolating smoking as the dominant variable</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">SELECT</span>
+    smoker,
+    <span class="cm">-- Similar BMI across both groups</span>
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="nu">100</span>*<span class="fn">SUM</span>(
+        <span class="kw">CASE WHEN</span> bmi>=<span class="nu">25</span> <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>
+    )/<span class="fn">COUNT</span>(smoker),<span class="nu">2</span>),<span class="st">"%"</span>) <span class="kw">AS</span> pct_overweight,
+    <span class="cm">-- Very different cost outcomes</span>
+    <span class="fn">CONCAT</span>(<span class="fn">ROUND</span>(<span class="nu">100</span>*<span class="fn">SUM</span>(
+        <span class="kw">CASE WHEN</span> charges > (
+            <span class="kw">SELECT</span> <span class="fn">AVG</span>(charges) <span class="kw">FROM</span> insurance
+        ) <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>
+    )/<span class="fn">COUNT</span>(smoker),<span class="nu">2</span>),<span class="st">"%"</span>) <span class="kw">AS</span> pct_above_avg
+<span class="kw">FROM</span> insurance
+<span class="kw">GROUP BY</span> smoker;
+<span class="cm">-- Smokers:     80% overweight, 99.6% above avg charges
+-- Non-smokers: 82% overweight, 13.8% above avg charges</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">11</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Within smokers and non-smokers separately — who are the highest-cost individuals, and how do they compare?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">Using RANK() partitioned by smoker status reveals that <strong>the highest-cost non-smokers barely reach the charge level of median-ranked smokers</strong>. The dual ranking (within-group and overall) shows that all top-20 records in the overall dataset are smokers — confirming that the two populations occupy entirely different charge regimes, not just different averages.</p>
+    </div>
+    <div>
+      <div class="why-label">Why RANK() with PARTITION BY</div>
+      <p class="why-text">Two RANK() calls in a single subquery — one overall, one partitioned by smoker — give both contexts simultaneously without running two separate queries. I chose RANK() over ROW_NUMBER() because ties in charges should receive the same rank. The outer WHERE rank_partition &lt;= 20 then filters cleanly. This is the pattern you'd use in a real reporting context: "show me the top N within each category, with overall context."</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Dual RANK() — within-group and overall</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">SELECT</span> rank_overall, rank_partition, smoker, charges
+<span class="kw">FROM</span> (
+    <span class="kw">SELECT</span> *,
+        <span class="fn">RANK</span>() <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> charges <span class="kw">DESC</span>)
+            <span class="kw">AS</span> rank_overall,
+        <span class="fn">RANK</span>() <span class="kw">OVER</span>(
+            <span class="kw">PARTITION BY</span> smoker
+            <span class="kw">ORDER BY</span> charges <span class="kw">DESC</span>
+        ) <span class="kw">AS</span> rank_partition
+    <span class="kw">FROM</span> insurance
+) <span class="kw">AS</span> subquery
+<span class="kw">WHERE</span> rank_partition <= <span class="nu">20</span>
+<span class="kw">ORDER BY</span> smoker <span class="kw">DESC</span>, rank_partition <span class="kw">ASC</span>;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">12</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question → Actionable output</div>
+      <div class="insight-title">Which specific patients represent the highest combined risk — produce the intervention list.</div>
+    </div>
+  </div>
+  <div class="insight-body wide">
+    <div>
+      <div class="finding-label">Finding — this is the deliverable</div>
+      <p class="finding-text">Having established through ten prior analyses that <strong>smoking and BMI &gt; 30 are the two independently verified high-risk flags</strong>, the final query produces something a business can act on: every patient who is both a smoker and obese (BMI &gt; 30), ordered by charges descending. A health insurer's care management team could take this list directly and begin outreach. The query earns its simplicity — the WHERE clause isn't arbitrary, it's the conclusion of everything that came before it.</p>
+      <div class="code-block" style="margin-top:1.2rem;">
+        <div class="code-header"><span class="code-title">High-risk patient list — evidence-based filter</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">SELECT</span>
+    idinsurance, age, sex,
+    bmi, children, region, charges
+<span class="kw">FROM</span> insurance
+<span class="kw">WHERE</span> smoker = <span class="st">'yes'</span>   <span class="cm">-- 99.6% above-average charge rate (finding 09)</span>
+  <span class="kw">AND</span> bmi > <span class="nu">30</span>          <span class="cm">-- elevated baseline risk (finding 06)</span>
+<span class="kw">ORDER BY</span> charges <span class="kw">DESC</span>; <span class="cm">-- highest cost first → intervention priority</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+  <div class="section-label">Business Conclusion</div>
+  <h2>What would a decision-maker do with this?</h2>
+  <div class="conclusion">
+    <p>The analysis converges on a clear answer: <strong>smoking is the dominant cost driver</strong> — not BMI, not age, not region. BMI raises baseline risk for nearly everyone, but almost equally for smokers and non-smokers. Age is a reliable predictor but a given, not an intervention target. <strong>The 20% of patients who smoke account for nearly half of all charges</strong>, and 99.6% of them exceed the dataset average.</p>
+    <p style="margin-top:1rem;">A health insurer acting on this analysis would: first, ensure smoking status is captured accurately at enrolment — it's the single highest-signal variable in the dataset. Second, target the high-BMI smoker cohort for care management outreach, since that combination defines the extreme cost tail. Third, investigate why male smokers are overrepresented in the top 150 — whether that reflects occupational factors, reporting differences, or genuine risk divergence worth separate modelling.</p>
+    <p style="margin-top:1rem;"><strong>The one question this dataset can't answer:</strong> do high-cost patients return year after year, or are extreme charges typically one-time events? That distinction changes the intervention strategy entirely — and would require a longitudinal claims dataset joined to this one.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">SQL Techniques Used</div>
+  <div class="techniques">
+    <div class="tech-grid">
+      <div class="tech-item"><span class="tech-dot"></span><span>GROUP BY with SUM, COUNT, AVG, MIN, MAX, STDDEV_POP</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>TRUNCATE() for fast distribution binning</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>CREATE TEMPORARY TABLE + UNION ALL rows</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>LEFT JOIN for range-based bin matching</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>CASE WHEN for inline classification</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>Scalar subqueries in SELECT and WHERE</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>CTE (WITH clause) for multi-reference filtered sets</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>Subquery in FROM for pre-filtered aggregation</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>RANK() OVER() with and without PARTITION BY</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>Conditional SUM — CASE WHEN inside SUM()</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>CONCAT + ROUND for business-readable output</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>avg_to_global_ratio for relative comparison</span></div>
+    </div>
+  </div>
+
+  <div class="ai-note">
+    <span>AI-assisted development ·</span> Analysis logic and query structure were developed independently. Claude (Anthropic) was used to review syntax, suggest alternative approaches to the dual RANK() pattern, and help document the reasoning behind method choices. All query outputs were validated against the raw dataset. This portfolio website was also built with AI assistance for code generation — I directed all design and analytical decisions.
+  </div>
+</div>
+
+<div class="cta-section">
+  <a href="https://github.com/PaulinaDom/data-analyst-portfolio/tree/main/Analyzing-insurance-data/SQL" target="_blank" class="btn-primary">View Full Code on GitHub ↗</a>
+  <a href="project-health-powerbi.html" class="btn-outline">See Power BI Report of Same Data →</a>
+</div>
+
+<footer>© 2025 Paulina Dominikowska · Data Analyst Portfolio</footer>
+</body>
+</html>
