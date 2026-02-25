@@ -166,8 +166,8 @@
 <div class="section">
   <div class="section-label">Dataset</div>
   <h2>24 years of ATP matches.<br>One data quality issue that mattered.</h2>
-  <p>The dataset covers every ATP professional match from 2000 through 2024 — thousands of rows spanning tournaments, surfaces, rounds, and player names. Sourced from Kaggle, it's the kind of unstructured sports dataset that looks clean until you actually query it.</p>
-  <p>Before any analysis, I ran a data quality check and found a real problem: <strong>the 2019 US Open final row was missing</strong> — a gap that other analysts had flagged on Kaggle. Since this is one of the most watched matches of that era (Medvedev vs Nadal), excluding it would distort Grand Slam tallies. I corrected it manually in Excel before importing. This kind of catch matters: an analysis is only as reliable as the data that feeds it.</p>
+  <p>Sourced from Kaggle, the dataset covers every ATP professional match from 2000 through 2024 — thousands of rows spanning tournaments, surfaces, rounds, and player names.</p>
+  <p>Before any analysis, I ran a data quality check and found a real problem: <strong>the 2019 US Open final row was missing</strong> — a gap that other analysts had flagged on Kaggle. Since this is one of the most watched matches of that era (Medvedev vs Nadal), excluding it would distort Grand Slam count. I corrected it manually in Excel before importing. This kind of catch matters: an analysis is only as reliable as the data that feeds it.</p>
 
   <div class="data-note">
     <span>Data quality note ·</span> The correction involved adding the missing 2019 US Open final result (Nadal def. Medvedev) to the raw CSV before loading into DataCamp's SQL environment. The fix was documented and the original file preserved alongside the corrected version.
@@ -206,7 +206,7 @@
     </div>
     <div>
       <div class="why-label">Why GROUP BY + ORDER BY first</div>
-      <p class="why-text">The starting point was a simple win count grouped by player and filtered to Grand Slam finals. Before any window functions or CTEs, this gives you the raw leaderboard — and the 16-title gap is already visible in the output. It's tempting to jump straight to complex queries, but simple aggregations often answer the first-order question clearly. Complexity should come when the simple answer isn't enough.</p>
+      <p class="why-text">The starting point was a simple win count grouped by player and filtered to Grand Slam finals. Before any window functions or CTEs, this gives you the raw leaderboard — and the 16-title gap is already visible in the output. It's tempting to jump straight to complex queries, but simple aggregations often answer the first-order question clearly.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-title">Grand Slam title count — simple baseline</span><span class="code-lang">SQL</span></div>
         <pre><span class="kw">SELECT</span>
@@ -253,11 +253,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td class="player">Djokovic N.</td><td><span class="rank-good">#2</span></td><td><span class="rank-good">#2</span></td><td><span class="rank-good">#1</span></td></tr>
-          <tr><td class="player">Nadal R.</td><td><span class="rank-good">#1</span></td><td><span class="rank-good">#3</span></td><td><span class="rank-good">#4</span></td></tr>
-          <tr><td class="player">Federer R.</td><td><span class="rank-good">#3</span></td><td><span class="rank-good">#1</span></td><td><span class="rank-good">#2</span></td></tr>
-          <tr><td class="player">Murray A.</td><td><span class="rank-bad">#56</span></td><td><span class="rank-good">#4</span></td><td><span class="rank-good">#5</span></td></tr>
-          <tr><td class="player">Ferrer D.</td><td><span class="rank-good">#2</span></td><td><span class="rank-bad">#40</span></td><td><span class="rank-mid">#12</span></td></tr>
+          <tr><td class="player">Djokovic N.</td><td><span class="rank-good">#3</span></td><td><span class="rank-good">#2</span></td><td><span class="rank-good">#2</span></td></tr>
+          <tr><td class="player">Nadal R.</td><td><span class="rank-good">#1</span></td><td><span class="rank-good">#7</span></td><td><span class="rank-good">#3</span></td></tr>
+          <tr><td class="player">Federer R.</td><td><span class="rank-good">#9</span></td><td><span class="rank-good">#1</span></td><td><span class="rank-good">#1</span></td></tr>
+          <tr><td class="player">Murray A.</td><td><span class="rank-bad">#56</span></td><td><span class="rank-good">#3</span></td><td><span class="rank-good">#4</span></td></tr>
+          <tr><td class="player">Ferrer D.</td><td><span class="rank-good">#2</span></td><td><span class="rank-bad">#40</span></td><td><span class="rank-mid">#9</span></td></tr>
         </tbody>
       </table>
     </div>
