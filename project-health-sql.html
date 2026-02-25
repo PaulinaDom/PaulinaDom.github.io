@@ -132,14 +132,14 @@
   <div class="section-label">Dataset</div>
   <h2>1,338 patient records.<br>8 variables. One cost problem.</h2>
   <p>The dataset contains individual health insurance records: age, sex, BMI, number of children, smoker status, region, and total charges. Sourced from Kaggle, it mirrors the kind of claims-level extract an insurance analyst would receive from an underwriting system — structured, mostly clean, ready for SQL but full of questions.</p>
-  <p>Before writing a single analytical query, I ran exploratory queries across all categorical and numeric fields to understand distributions, identify outliers, and decide where the interesting questions were. That process — not the final queries — shaped the analysis.</p>
+  <p>Before writing a single analytical query, I ran exploratory queries across all categorical and numeric fields to understand distributions, identify outliers, and decide where the interesting questions were.</p>
 </div>
 
 <div class="divider"></div>
 
 <div class="section">
   <div class="section-label">Analysis & Findings</div>
-  <h2>11 questions.<br>Each with a business answer.</h2>
+  <h2>12 questions.<br>Each with a business answer.</h2>
 </div>
 
 <!-- 01 -->
@@ -159,7 +159,7 @@
     </div>
     <div>
       <div class="why-label">Why this method</div>
-      <p class="why-text">A simple GROUP BY with CONCAT formatting was the right starting point — readable output, no unnecessary complexity. CONCAT + ROUND gives business-ready labels ($8.3k) rather than raw decimals. The point of early EDA is to surface the question, not answer it definitively.</p>
+      <p class="why-text">A simple GROUP BY with CONCAT formatting was the right starting point — readable output, no unnecessary complexity. CONCAT + ROUND gives business-ready labels ($8.3k) rather than raw decimals.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-title">Charges grouped by sex</span><span class="code-lang">SQL</span></div>
         <pre><span class="kw">SELECT</span>
@@ -215,7 +215,7 @@
   <div class="insight-body wide">
     <div>
       <div class="finding-label">Finding</div>
-      <p class="finding-text">Regional analysis revealed that <strong>Northwest and Northeast regions have meaningfully lower average BMI</strong> than the South and Southwest. Since BMI correlates with charges, this partially explains regional charge differences. But it also raises a question for an actuary: are regional premium differences in this data reflecting actual regional risk, or is the BMI gap doing most of the work? I calculated MIN, MAX, AVG, and STDDEV_POP across BMI, age, and charges for all three grouping variables to see which differences were signal versus noise.</p>
+      <p class="finding-text">Regional analysis revealed that <strong>Northwest and Northeast regions have meaningfully lower average BMI</strong> than the South and Southwest. Since BMI correlates with charges, this partially explains regional charge differences. But it also raises a question: are regional premium differences in this data reflecting actual regional risk, or is the BMI gap doing most of the work? I calculated MIN, MAX, AVG, and STDDEV_POP across BMI, age, and charges for all three grouping variables.</p>
       <div class="why-label">Why include standard deviation</div>
       <p class="why-text">STDDEV_POP is often skipped in basic EDA but matters here. A high standard deviation in charges for smokers tells you the risk isn't just higher on average — it's also more variable and harder to predict. That's an underwriting problem, not just a pricing one.</p>
     </div>
@@ -246,7 +246,7 @@
     </div>
     <div>
       <div class="why-label">Why TRUNCATE() for distribution</div>
-      <p class="why-text">TRUNCATE(charges, -4) rounds to the nearest $10,000, creating natural charge buckets in a single line — no JOIN, no temp table. This is a fast, readable way to understand distribution shape before deciding whether more granular binning is worth the complexity. Seeing that 53% of patients sit in the lowest bucket immediately told me that a median-based approach would be more honest than averages in subsequent analysis.</p>
+      <p class="why-text">TRUNCATE(charges, -4) rounds to the nearest $10,000, creating natural charge buckets in a single line — no JOIN, no temp table. This is a fast, readable way to understand distribution shape without complex queries. Seeing that 53% of patients sit in the lowest bucket immediately told me that a median-based approach would be more honest than averages in subsequent analysis.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-title">Distribution via TRUNCATE() — fast and readable</span><span class="code-lang">SQL</span></div>
         <pre><span class="kw">SELECT</span>
@@ -276,7 +276,7 @@
     </div>
     <div>
       <div class="why-label">Why a temp table for bins</div>
-      <p class="why-text">I used CREATE TEMPORARY TABLE with UNION ALL rows rather than inline CASE WHEN because bin boundaries defined once in a JOIN are more maintainable — if the bin width changes, you update one place. It also mirrors how a production ETL pipeline would handle reference data, which is worth demonstrating.</p>
+      <p class="why-text">I used CREATE TEMPORARY TABLE with UNION ALL rows rather than inline CASE WHEN because bin boundaries defined once in a JOIN are more maintainable — if the bin width changes, you update one place.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-title">Age bins via temp table + LEFT JOIN</span><span class="code-lang">SQL</span></div>
         <pre><span class="kw">CREATE TEMPORARY TABLE</span> bins <span class="kw">AS</span> (
@@ -397,7 +397,7 @@
     </div>
     <div>
       <div class="why-label">Why a CTE here, not a subquery</div>
-      <p class="why-text">The filtered dataset is referenced multiple times in the outer SELECT — for COUNT, for averages, and for the percentage of smokers. A CTE materialises the filtered result once. A repeated subquery would re-evaluate the filter condition for every reference. It also makes the intent explicit: "first define the high-cost group, then describe it."</p>
+      <p class="why-text">The filtered dataset is referenced multiple times in the outer SELECT — for COUNT, for averages, and for the percentage of smokers. A CTE materialises the filtered result once. A repeated subquery would re-evaluate the filter condition for every reference. It also works as a prefilter to the main query, making it more performance-friendly.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-title">CTE — define once, profile fully</span><span class="code-lang">SQL</span></div>
         <pre><span class="kw">WITH</span> cte <span class="kw">AS</span> (
@@ -442,7 +442,7 @@
     </div>
     <div>
       <div class="why-label">Why a subquery in FROM</div>
-      <p class="why-text">To profile the top 150 records, I used a subquery in the FROM clause (ORDER BY charges DESC, LIMIT 150) aliased as table1. This is cleaner than a CTE for a one-time filtered source. The conditional SUMs with CASE WHEN inside calculate smoking rate and gender split in a single pass — no JOIN back to the full table needed.</p>
+      <p class="why-text">To profile the top 150 records, I used a subquery in the FROM clause aliased as table1. The conditional SUMs with CASE WHEN inside calculate smoking rate and gender split in a single pass — no JOIN back to the full table needed.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-title">Subquery in FROM — profile the top 150</span><span class="code-lang">SQL</span></div>
         <pre><span class="kw">SELECT</span>
@@ -518,7 +518,7 @@
     </div>
     <div>
       <div class="why-label">Why RANK() with PARTITION BY</div>
-      <p class="why-text">Two RANK() calls in a single subquery — one overall, one partitioned by smoker — give both contexts simultaneously without running two separate queries. I chose RANK() over ROW_NUMBER() because ties in charges should receive the same rank. The outer WHERE rank_partition &lt;= 20 then filters cleanly. This is the pattern you'd use in a real reporting context: "show me the top N within each category, with overall context."</p>
+      <p class="why-text">Two RANK() calls in a single subquery — one overall, one partitioned by smoker — give both contexts simultaneously without running two separate queries. I chose RANK() over ROW_NUMBER() because ties in charges should receive the same rank. The outer WHERE rank_partition &lt;= 20 then filters cleanly.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-title">Dual RANK() — within-group and overall</span><span class="code-lang">SQL</span></div>
         <pre><span class="kw">SELECT</span> rank_overall, rank_partition, smoker, charges
@@ -551,7 +551,7 @@
   <div class="insight-body wide">
     <div>
       <div class="finding-label">Finding — this is the deliverable</div>
-      <p class="finding-text">Having established through ten prior analyses that <strong>smoking and BMI &gt; 30 are the two independently verified high-risk flags</strong>, the final query produces something a business can act on: every patient who is both a smoker and obese (BMI &gt; 30), ordered by charges descending. A health insurer's care management team could take this list directly and begin outreach. The query earns its simplicity — the WHERE clause isn't arbitrary, it's the conclusion of everything that came before it.</p>
+      <p class="finding-text">Having established through ten prior analyses that <strong>smoking and BMI &gt; 30 are the two independently verified high-risk flags</strong>, the final query produces something a business can act on: every patient who is both a smoker and obese (BMI &gt; 30), ordered by charges descending. A health insurer's care management team could take this list directly and begin outreach. The query earns its simplicity — the WHERE clause is the conclusion of everything that I found out during the analysis.</p>
       <div class="code-block" style="margin-top:1.2rem;">
         <div class="code-header"><span class="code-title">High-risk patient list — evidence-based filter</span><span class="code-lang">SQL</span></div>
         <pre><span class="kw">SELECT</span>
@@ -599,7 +599,7 @@
   </div>
 
   <div class="ai-note">
-    <span>AI-assisted development ·</span> Analysis logic and query structure were developed independently. Claude (Anthropic) was used to review syntax, suggest alternative approaches to the dual RANK() pattern, and help document the reasoning behind method choices. All query outputs were validated against the raw dataset. This portfolio website was also built with AI assistance for code generation — I directed all design and analytical decisions.
+    <span>AI-assisted development ·</span> Analysis logic and query structure were developed independently. Claude (Anthropic) was used to create HTML code for the portfolio website, review syntax when I ran an error that wasn't quickly resolvable, and help document the reasoning behind method choices. All query outputs were validated against the raw dataset in MySQL. This portfolio website was also built with AI assistance for code generation — I directed all design, analytical decisions, and deployment - Claude prepared the code.
   </div>
 </div>
 
