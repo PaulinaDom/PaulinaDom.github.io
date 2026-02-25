@@ -3,373 +3,127 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ATP Tennis Analysis — Paulina Dominikowska</title>
+  <title>ATP Tennis SQL Analysis — Paulina Dominikowska</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0e1a14;
-      --surface: #14231a;
-      --surface2: #1b2e22;
-      --cream: #f5f0e8;
-      --cream-dim: #c8c0b0;
-      --green: #3d7a52;
-      --green-light: #5aad74;
-      --accent: #c8a84b;
-      --clay: #c4632a;
-      --grass: #3d9e5f;
-      --hard: #2a6ec4;
+      --bg:#0e1a14; --surface:#14231a; --surface2:#1b2e22;
+      --cream:#f5f0e8; --cream-dim:#b8b0a0;
+      --green:#3d7a52; --green-light:#5aad74; --accent:#c8a84b;
+      --red:#c0504d;
+      --clay:#c4632a; --grass:#3d9e5f; --hard:#2a6ec4;
     }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--cream); font-family:'DM Sans',sans-serif; font-weight:300; line-height:1.7; }
+    nav { padding:1.5rem 3rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); position:sticky; top:0; background:rgba(14,26,20,0.95); backdrop-filter:blur(10px); z-index:100; }
+    .nav-back { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); text-decoration:none; letter-spacing:0.1em; transition:opacity 0.2s; }
+    .nav-back:hover { opacity:0.7; }
+    .nav-title { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--cream-dim); letter-spacing:0.15em; text-transform:uppercase; }
+    .nav-ext { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); text-decoration:none; }
+    .hero { padding:5rem 3rem 3rem; max-width:960px; margin:0 auto; }
+    .hero-label { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:1.5rem; }
+    h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(2.2rem,5vw,3.5rem); line-height:1.1; margin-bottom:1.5rem; }
+    h1 em { font-style:italic; color:var(--accent); }
+    .meta-row { display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2rem; }
+    .meta-tag { font-family:'DM Mono',monospace; font-size:0.82rem; padding:0.3rem 0.75rem; border:1px solid var(--green); color:var(--green-light); letter-spacing:0.1em; }
+    .intro { font-size:1rem; color:var(--cream-dim); max-width:680px; line-height:1.9; }
+    .divider { max-width:960px; margin:2rem auto; height:1px; background:rgba(255,255,255,0.07); }
+    .section { max-width:960px; margin:0 auto; padding:2rem 3rem; }
+    .section-label { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:1rem; }
+    h2 { font-family:'Cormorant Garamond',serif; font-size:1.9rem; margin-bottom:1.2rem; line-height:1.2; }
+    p { color:var(--cream-dim); font-size:0.96rem; margin-bottom:1rem; line-height:1.85; }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* INSIGHT BLOCKS */
+    .insight-block { border:1px solid rgba(255,255,255,0.07); margin:2rem 0; background:var(--surface); }
+    .insight-header { display:grid; grid-template-columns:auto 1fr; border-bottom:1px solid rgba(255,255,255,0.07); }
+    .insight-num { font-family:'Cormorant Garamond',serif; font-size:2.4rem; color:var(--accent); padding:1.5rem 1.8rem; border-right:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; line-height:1; }
+    .insight-title-block { padding:1.2rem 1.8rem; }
+    .insight-question { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:0.4rem; }
+    .insight-title { font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--cream); line-height:1.3; }
+    .insight-body { padding:1.5rem 1.8rem; display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
+    .insight-body.wide { grid-template-columns:1fr; }
+    .finding-label { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:0.6rem; }
+    .finding-text { font-size:0.93rem; color:var(--cream-dim); line-height:1.85; }
+    .finding-text strong { color:var(--cream); font-weight:500; }
+    .finding-text .hl { color:var(--accent); font-weight:500; }
+    .finding-text .alert { color:var(--red); font-weight:500; }
+    .why-label { font-family:'DM Mono',monospace; font-size:0.82rem; color:rgba(255,255,255,0.32); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:0.6rem; margin-top:1.2rem; }
+    .why-text { font-size:0.87rem; color:rgba(255,255,255,0.42); line-height:1.8; font-style:italic; }
 
-    body {
-      background: var(--bg);
-      color: var(--cream);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
-      line-height: 1.7;
-    }
+    /* STAT ROW */
+    .stat-row { display:flex; gap:1px; background:rgba(255,255,255,0.06); margin:1rem 0; flex-wrap:wrap; }
+    .stat-cell { background:var(--bg); padding:1.2rem 1.5rem; flex:1; min-width:110px; }
+    .stat-val { font-family:'Cormorant Garamond',serif; font-size:2rem; display:block; line-height:1; margin-bottom:0.3rem; }
+    .stat-val.gold { color:var(--accent); }
+    .stat-val.green { color:var(--green-light); }
+    .stat-val.red { color:var(--red); }
+    .stat-val.blue { color:#5a9aef; }
+    .stat-desc { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--cream-dim); letter-spacing:0.1em; text-transform:uppercase; }
 
-    /* NAV */
-    nav {
-      padding: 1.5rem 3rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      position: sticky;
-      top: 0;
-      background: rgba(14,26,20,0.95);
-      backdrop-filter: blur(10px);
-      z-index: 100;
-    }
-    .nav-back {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--green-light);
-      text-decoration: none;
-      letter-spacing: 0.1em;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: opacity 0.2s;
-    }
-    .nav-back:hover { opacity: 0.7; }
-    .nav-title {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--cream-dim);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-    }
-    .nav-link {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--green-light);
-      text-decoration: none;
-      letter-spacing: 0.08em;
-    }
+    /* CODE */
+    .code-block { margin:1rem 0 0; }
+    .code-header { background:var(--surface2); padding:0.7rem 1.5rem; border:1px solid rgba(255,255,255,0.08); border-bottom:none; display:flex; justify-content:space-between; align-items:center; }
+    .code-title { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--green-light); letter-spacing:0.1em; }
+    .code-lang { font-family:'DM Mono',monospace; font-size:0.82rem; color:rgba(255,255,255,0.28); }
+    pre { background:#080f0b; border:1px solid rgba(255,255,255,0.08); padding:1.5rem; overflow-x:auto; font-family:'DM Mono',monospace; font-size:0.77rem; line-height:1.8; color:var(--cream-dim); margin:0; }
+    .kw { color:#7eb8f7; } .fn { color:var(--green-light); } .cm { color:rgba(255,255,255,0.26); font-style:italic; } .st { color:var(--accent); } .nu { color:#e07840; }
 
-    /* HERO */
-    .hero {
-      padding: 5rem 3rem 4rem;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .hero-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--green-light);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      margin-bottom: 1.5rem;
-    }
-    .hero h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(2.2rem, 5vw, 3.8rem);
-      line-height: 1.1;
-      color: var(--cream);
-      margin-bottom: 1.5rem;
-    }
-    .hero h1 em {
-      font-style: italic;
-      color: var(--accent);
-    }
-    .hero-meta {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 2rem;
-    }
-    .meta-tag {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
-      padding: 0.3rem 0.75rem;
-      border: 1px solid var(--green);
-      color: var(--green-light);
-      letter-spacing: 0.1em;
-      border-radius: 1px;
-    }
-    .hero-intro {
-      font-size: 1.05rem;
-      color: var(--cream-dim);
-      max-width: 640px;
-      line-height: 1.8;
-    }
+    /* SURFACE RANK TABLE */
+    .surface-table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.88rem; }
+    .surface-table th { font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--green-light); letter-spacing:0.1em; text-transform:uppercase; padding:0.6rem 0.8rem; border-bottom:1px solid rgba(255,255,255,0.1); text-align:left; }
+    .surface-table td { padding:0.55rem 0.8rem; border-bottom:1px solid rgba(255,255,255,0.05); color:var(--cream-dim); }
+    .surface-table tr:last-child td { border-bottom:none; }
+    .surface-table .player { color:var(--cream); font-weight:500; }
+    .rank-good { color:var(--green-light); font-family:'DM Mono',monospace; font-weight:500; }
+    .rank-bad { color:var(--red); font-family:'DM Mono',monospace; }
+    .rank-mid { color:var(--accent); font-family:'DM Mono',monospace; }
+    .s-clay { color:#e07840; font-family:'DM Mono',monospace; font-size:0.75rem; letter-spacing:0.08em; }
+    .s-grass { color:var(--green-light); font-family:'DM Mono',monospace; font-size:0.75rem; letter-spacing:0.08em; }
+    .s-hard { color:#5a9aef; font-family:'DM Mono',monospace; font-size:0.75rem; letter-spacing:0.08em; }
 
-    /* HERO IMAGE */
-    .hero-image {
-      max-width: 900px;
-      margin: 0 auto 4rem;
-      padding: 0 3rem;
-    }
-    .hero-image figure {
-      position: relative;
-    }
-    .hero-image img {
-      width: 100%;
-      max-height: 420px;
-      object-fit: cover;
-      object-position: center top;
-      display: block;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .hero-image figcaption {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.63rem;
-      color: rgba(255,255,255,0.3);
-      margin-top: 0.6rem;
-      letter-spacing: 0.08em;
-    }
+    /* ROLLING SUM VIZ */
+    .timeline { margin:1.2rem 0; display:flex; flex-direction:column; gap:0.4rem; }
+    .tl-row { display:flex; align-items:center; gap:0.75rem; }
+    .tl-label { font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--cream-dim); width:52px; flex-shrink:0; }
+    .tl-outer { flex:1; background:rgba(255,255,255,0.05); height:14px; position:relative; }
+    .tl-bar { height:100%; }
+    .tl-val { font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--cream-dim); width:32px; text-align:right; }
 
-    /* DIVIDER */
-    .divider {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 0 3rem;
-      height: 1px;
-      background: rgba(255,255,255,0.07);
-      margin-bottom: 3rem;
-    }
+    /* TECHNIQUES */
+    .techniques { background:var(--surface); border:1px solid rgba(255,255,255,0.07); padding:2rem; margin:2rem 0; }
+    .tech-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0.6rem; margin-top:1rem; }
+    .tech-item { display:flex; align-items:flex-start; gap:0.7rem; font-size:0.88rem; color:var(--cream-dim); line-height:1.5; }
+    .tech-dot { width:5px; height:5px; background:var(--green-light); border-radius:50%; flex-shrink:0; margin-top:0.45rem; }
 
-    /* SECTION */
-    .section {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem 3rem;
-    }
-    .section-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      color: var(--green-light);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-    }
-    .section h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.8rem;
-      color: var(--cream);
-      margin-bottom: 1.2rem;
-    }
-    .section p {
-      color: var(--cream-dim);
-      margin-bottom: 1rem;
-      font-size: 0.97rem;
-    }
+    /* CONCLUSION */
+    .conclusion { background:var(--surface); border-left:3px solid var(--accent); padding:2rem 2.5rem; margin:2rem 0; }
+    .conclusion p { font-size:0.97rem; line-height:1.9; color:var(--cream-dim); }
+    .conclusion strong { color:var(--cream); font-weight:500; }
 
-    /* STAT CARDS */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 1rem;
-      margin: 2rem 0;
-    }
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.07);
-      padding: 1.5rem;
-      text-align: center;
-    }
-    .stat-num {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2.2rem;
-      color: var(--accent);
-      display: block;
-    }
-    .stat-desc {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      color: var(--cream-dim);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-top: 0.3rem;
-    }
+    /* DATA NOTE */
+    .data-note { background:rgba(200,168,75,0.06); border:1px solid rgba(200,168,75,0.2); padding:1.2rem 1.8rem; margin:1.5rem 0; font-size:0.88rem; color:rgba(255,255,255,0.5); line-height:1.8; }
+    .data-note span { color:var(--accent); font-family:'DM Mono',monospace; font-size:0.82rem; letter-spacing:0.1em; }
 
-    /* FINDINGS */
-    .findings {
-      background: var(--surface);
-      border-left: 3px solid var(--green);
-      padding: 2rem 2.5rem;
-      margin: 2rem 0;
-    }
-    .finding-item {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-      margin-bottom: 1.2rem;
-    }
-    .finding-item:last-child { margin-bottom: 0; }
-    .finding-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--green-light);
-      min-width: 24px;
-      margin-top: 0.1rem;
-    }
-    .finding-text {
-      font-size: 0.95rem;
-      color: var(--cream-dim);
-    }
-    .finding-text strong { color: var(--cream); font-weight: 500; }
+    /* AI NOTE */
+    .ai-note { background:rgba(90,173,116,0.05); border:1px solid rgba(90,173,116,0.15); padding:1.2rem 1.8rem; margin:2rem 0; font-size:0.87rem; color:rgba(255,255,255,0.45); line-height:1.8; }
+    .ai-note span { color:var(--green-light); font-family:'DM Mono',monospace; font-size:0.82rem; letter-spacing:0.1em; }
 
-    /* SURFACE BADGES */
-    .surface-row {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin: 1.5rem 0;
-    }
-    .surface-badge {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      padding: 0.5rem 1.2rem;
-      letter-spacing: 0.08em;
-    }
-    .surface-clay { background: rgba(196,99,42,0.15); border: 1px solid var(--clay); color: #e07840; }
-    .surface-grass { background: rgba(61,158,95,0.12); border: 1px solid var(--grass); color: #5aad74; }
-    .surface-hard { background: rgba(42,110,196,0.12); border: 1px solid var(--hard); color: #5a9aef; }
+    .hero-image { max-width:960px; margin:0 auto 2rem; padding:0 3rem; }
+    .hero-image img { width:100%; max-height:380px; object-fit:cover; object-position:center top; display:block; border:1px solid rgba(255,255,255,0.08); }
+    .hero-image figcaption { font-family:'DM Mono',monospace; font-size:0.75rem; color:rgba(255,255,255,0.28); margin-top:0.5rem; letter-spacing:0.06em; }
 
-    /* CODE BLOCK */
-    .code-section {
-      margin: 2rem 0;
-    }
-    .code-header {
-      background: var(--surface2);
-      padding: 0.8rem 1.5rem;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-bottom: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .code-title {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--green-light);
-      letter-spacing: 0.1em;
-    }
-    .code-lang {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      color: rgba(255,255,255,0.3);
-      letter-spacing: 0.08em;
-    }
-    pre {
-      background: #0a1410;
-      border: 1px solid rgba(255,255,255,0.08);
-      padding: 1.5rem;
-      overflow-x: auto;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.8rem;
-      line-height: 1.7;
-      color: var(--cream-dim);
-    }
-    .kw { color: #7eb8f7; } /* keywords */
-    .fn { color: var(--green-light); } /* functions */
-    .cm { color: rgba(255,255,255,0.28); font-style: italic; } /* comments */
-    .st { color: var(--accent); } /* strings */
-    .nu { color: #e07840; } /* numbers */
-
-    /* SKILLS USED */
-    .skills-used {
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.07);
-      padding: 2rem;
-      margin: 2rem 0;
-    }
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 0.75rem;
-      margin-top: 1rem;
-    }
-    .skill-item {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--cream-dim);
-      letter-spacing: 0.05em;
-    }
-    .skill-dot {
-      width: 5px;
-      height: 5px;
-      background: var(--green-light);
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    /* CTA */
-    .cta-section {
-      max-width: 900px;
-      margin: 2rem auto 5rem;
-      padding: 0 3rem;
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .btn-primary {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      padding: 0.85rem 2rem;
-      background: var(--green);
-      color: var(--cream);
-      text-decoration: none;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      transition: background 0.2s;
-    }
-    .btn-primary:hover { background: var(--green-light); }
-    .btn-outline {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      padding: 0.85rem 2rem;
-      border: 1px solid var(--green);
-      color: var(--green-light);
-      text-decoration: none;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      transition: all 0.2s;
-    }
-    .btn-outline:hover { background: rgba(61,122,82,0.15); }
-
-    /* FOOTER */
-    footer {
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding: 2rem 3rem;
-      text-align: center;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      color: rgba(255,255,255,0.2);
-      letter-spacing: 0.1em;
-    }
-
-    @media (max-width: 640px) {
-      nav, .hero, .section, .hero-image, .cta-section { padding-left: 1.5rem; padding-right: 1.5rem; }
-      .hero { padding-top: 3rem; }
+    .cta-section { max-width:960px; margin:2rem auto 5rem; padding:0 3rem; display:flex; gap:1rem; flex-wrap:wrap; }
+    .btn-primary { font-family:'DM Mono',monospace; font-size:0.82rem; padding:0.85rem 2rem; background:var(--green); color:var(--cream); text-decoration:none; letter-spacing:0.12em; text-transform:uppercase; transition:background 0.2s; }
+    .btn-primary:hover { background:var(--green-light); }
+    .btn-outline { font-family:'DM Mono',monospace; font-size:0.82rem; padding:0.85rem 2rem; border:1px solid var(--green); color:var(--green-light); text-decoration:none; letter-spacing:0.12em; text-transform:uppercase; }
+    .btn-outline:hover { background:rgba(61,122,82,0.15); }
+    footer { border-top:1px solid rgba(255,255,255,0.06); padding:2rem 3rem; text-align:center; font-family:'DM Mono',monospace; font-size:0.82rem; color:rgba(255,255,255,0.2); letter-spacing:0.1em; }
+    @media(max-width:700px) {
+      nav,.hero,.section,.cta-section,.hero-image { padding-left:1.5rem; padding-right:1.5rem; }
+      .insight-body { grid-template-columns:1fr; }
+      .insight-header { grid-template-columns:1fr; }
+      .insight-num { border-right:none; border-bottom:1px solid rgba(255,255,255,0.07); }
     }
   </style>
 </head>
@@ -377,153 +131,366 @@
 
 <nav>
   <a href="index.html" class="nav-back">← Back to Portfolio</a>
-  <span class="nav-title">Project 01</span>
-  <a href="https://www.datacamp.com/datalab/w/637536c5-c054-4328-a38c-40a81e8a4d40" target="_blank" class="nav-link">View on DataCamp ↗</a>
+  <span class="nav-title">Project 01 — SQL</span>
+  <a href="https://www.datacamp.com/datalab/w/637536c5-c054-4328-a38c-40a81e8a4d40" target="_blank" class="nav-ext">DataCamp ↗</a>
 </nav>
 
+<!-- HERO -->
 <div class="hero">
-  <div class="hero-label">SQL Analysis · Project 01</div>
-  <h1>ATP Tennis Matches<br><em>2000 – 2024</em></h1>
-  <div class="hero-meta">
+  <div class="hero-label">SQL · Exploratory Data Analysis · Project 01</div>
+  <h1>Does the GOAT debate<br><em>hold up in the data?</em></h1>
+  <div class="meta-row">
     <span class="meta-tag">SQL</span>
-    <span class="meta-tag">Window Functions</span>
     <span class="meta-tag">CTEs</span>
-    <span class="meta-tag">Pivot Tables</span>
-    <span class="meta-tag">Data Exploration</span>
+    <span class="meta-tag">Window Functions</span>
+    <span class="meta-tag">RANK() PARTITION BY</span>
+    <span class="meta-tag">Rolling Aggregation</span>
+    <span class="meta-tag">Date Arithmetic</span>
+    <span class="meta-tag">Manual Pivot</span>
   </div>
-  <p class="hero-intro">
-    A deep-dive into 24 years of professional tennis, exploring who truly dominated the sport — and whether the data supports the GOAT debate. Using a Kaggle ATP dataset of all matches from 2000 to 2024, I set out to find the three greatest players of the era and track the arc of their careers.
-  </p>
+  <p class="intro">The "Greatest of All Time" debate in tennis is usually settled by opinion. This project uses 24 years of ATP match data — every professional match from 2000 to 2024 — to ask the same question with SQL. Who actually dominated? On which surfaces? And what does the trajectory of their careers look like when you strip away the commentary and look at the numbers?</p>
 </div>
 
 <div class="hero-image">
   <figure>
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Wimbledon_Centre_Court.jpg/1280px-Wimbledon_Centre_Court.jpg"
          alt="Wimbledon Centre Court"
-         style="width:100%;max-height:420px;object-fit:cover;display:block;border:1px solid rgba(255,255,255,0.08);"
          onerror="this.parentElement.style.display='none'" />
-    <figcaption>Wimbledon Centre Court — image via Wikimedia Commons (CC BY-SA)</figcaption>
+    <figcaption>Wimbledon Centre Court — via Wikimedia Commons (CC BY-SA)</figcaption>
   </figure>
 </div>
 
 <div class="divider"></div>
 
+<!-- DATASET -->
 <div class="section">
-  <div class="section-label">The Question</div>
-  <h2>Who dominated tennis in the modern era?</h2>
-  <p>The ATP dataset covers every professional match from 2000 through 2024 — over two decades of data. The goal was to identify the top performers, then drill into the detail: surface preferences, Grand Slam accumulation, and signs of career decline.</p>
-  <p>One data quality issue I caught and fixed before analysis: a missing US Open 2019 final row that other analysts had flagged on Kaggle. I manually corrected this in Excel before importing — a small detail that reflects the real-world messiness of data work.</p>
+  <div class="section-label">Dataset</div>
+  <h2>24 years of ATP matches.<br>One data quality issue that mattered.</h2>
+  <p>The dataset covers every ATP professional match from 2000 through 2024 — thousands of rows spanning tournaments, surfaces, rounds, and player names. Sourced from Kaggle, it's the kind of unstructured sports dataset that looks clean until you actually query it.</p>
+  <p>Before any analysis, I ran a data quality check and found a real problem: <strong>the 2019 US Open final row was missing</strong> — a gap that other analysts had flagged on Kaggle. Since this is one of the most watched matches of that era (Medvedev vs Nadal), excluding it would distort Grand Slam tallies. I corrected it manually in Excel before importing. This kind of catch matters: an analysis is only as reliable as the data that feeds it.</p>
+
+  <div class="data-note">
+    <span>Data quality note ·</span> The correction involved adding the missing 2019 US Open final result (Nadal def. Medvedev) to the raw CSV before loading into DataCamp's SQL environment. The fix was documented and the original file preserved alongside the corrected version.
+  </div>
 </div>
 
+<div class="divider"></div>
+
+<!-- FINDINGS -->
 <div class="section">
-  <div class="section-label">Key Findings</div>
-  <h2>What the data revealed</h2>
-
-  <div class="stats-row">
-    <div class="stat-card">
-      <span class="stat-num">24</span>
-      <span class="stat-desc">Years of data</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-num">3</span>
-      <span class="stat-desc">Undisputed GOATs</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-num">16</span>
-      <span class="stat-desc">Grand Slam gap between 3rd and 4th place</span>
-    </div>
-  </div>
-
-  <div class="findings">
-    <div class="finding-item">
-      <span class="finding-num">01</span>
-      <span class="finding-text"><strong>Djokovic, Nadal, and Federer</strong> are in a class of their own — the gap between 3rd and 4th place in Grand Slam titles is a staggering 16 titles, confirming their dominance statistically.</span>
-    </div>
-    <div class="finding-item">
-      <span class="finding-num">02</span>
-      <span class="finding-text"><strong>Surface specialization matters.</strong> Andy Murray ranks top-5 on grass and hard, but drops to 56th on clay. David Ferrer excels on clay (2nd) but falls off on grass (40th). The Big Three never fall outside the top 9 on any surface.</span>
-    </div>
-    <div class="finding-item">
-      <span class="finding-num">03</span>
-      <span class="finding-text"><strong>Federer had a 12-title head start.</strong> A rolling sum of Grand Slam wins shows that when Djokovic won his first Australian Open in 2008, Federer had already accumulated 12 titles — making Djokovic's eventual overtake even more remarkable.</span>
-    </div>
-  </div>
-
-
+  <div class="section-label">Analysis & Findings</div>
+  <h2>5 questions.<br>Each with a data-backed answer.</h2>
 </div>
 
-<div class="section">
-  <div class="section-label">SQL Techniques</div>
-  <h2>Selected queries</h2>
-  <p>Below are two queries that illustrate the kind of SQL used throughout this project — from window functions to CTEs with date calculations.</p>
+<!-- 01 -->
+<div class="section" style="padding-top:0;">
 
-  <div class="code-section">
-    <div class="code-header">
-      <span class="code-title">Surface dominance ranking — CTE + Window Function</span>
-      <span class="code-lang">SQL</span>
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">01</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Who are the dominant players of the era — and is there actually a clear top tier?</div>
     </div>
-    <pre><span class="cm">-- Setting up a CTE that filters surface, groups by surface
--- and winner, counts wins, then ranks within each surface</span>
-<span class="kw">WITH</span> wins_surface <span class="kw">AS</span> (
-    <span class="kw">SELECT</span> Surface, Winner, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> count
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <div class="stat-row">
+        <div class="stat-cell"><span class="stat-val gold">24</span><span class="stat-desc">Djokovic GS</span></div>
+        <div class="stat-cell"><span class="stat-val gold">22</span><span class="stat-desc">Nadal GS</span></div>
+        <div class="stat-cell"><span class="stat-val gold">20</span><span class="stat-desc">Federer GS</span></div>
+        <div class="stat-cell"><span class="stat-val red">4</span><span class="stat-desc">4th place GS</span></div>
+      </div>
+      <p class="finding-text" style="margin-top:0.8rem;">The gap between 3rd and 4th place in Grand Slam titles is <span class="hl">16 titles</span> — not a marginal difference but a structural one. Djokovic, Nadal, and Federer don't just rank higher than everyone else; they exist in a statistically separate tier. The Big Three narrative isn't media invention — it's what the data shows. The question of who among the three is "greatest" is closer, but the question of whether they form a distinct class is not.</p>
+    </div>
+    <div>
+      <div class="why-label">Why GROUP BY + ORDER BY first</div>
+      <p class="why-text">The starting point was a simple win count grouped by player and filtered to Grand Slam finals. Before any window functions or CTEs, this gives you the raw leaderboard — and the 16-title gap is already visible in the output. It's tempting to jump straight to complex queries, but simple aggregations often answer the first-order question clearly. Complexity should come when the simple answer isn't enough.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Grand Slam title count — simple baseline</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">SELECT</span>
+    Winner,
+    <span class="fn">COUNT</span>(*) <span class="kw">AS</span> grand_slam_titles
+<span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span>
+<span class="kw">WHERE</span> Round = <span class="st">'The Final'</span>
+  <span class="kw">AND</span> Tournament <span class="kw">IN</span> (
+    <span class="st">'Australian Open'</span>, <span class="st">'Roland Garros'</span>,
+    <span class="st">'Wimbledon'</span>, <span class="st">'US Open'</span>
+  )
+<span class="kw">GROUP BY</span> Winner
+<span class="kw">ORDER BY</span> grand_slam_titles <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="nu">10</span>;
+
+<span class="cm">-- Result: Djokovic 24, Nadal 22, Federer 20
+-- 4th place: 4 titles. Gap = 16.</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 02 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">02</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Does surface specialisation explain results — and does it affect the Big Three?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">Surface specialisation is real and dramatic for most players — but not for the Big Three. Murray ranks <strong>top 5 on grass and hard</strong>, but <span class="alert">drops to 56th on clay</span>. Ferrer sits <strong>2nd on clay</strong> but falls to <span class="alert">40th on grass</span>. These are players defined by surface.</p>
+      <p class="finding-text" style="margin-top:0.6rem;">The Big Three never fall outside the top 9 on any surface — including their weakest. <span class="hl">Federer ranks 3rd on clay despite being considered a grass/hard specialist.</span> Nadal ranks highly on all three despite his "clay king" label. This all-surface consistency is arguably what separates them from everyone else more than raw title count.</p>
+      <table class="surface-table" style="margin-top:1rem;">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th><span class="s-clay">Clay</span></th>
+            <th><span class="s-grass">Grass</span></th>
+            <th><span class="s-hard">Hard</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="player">Djokovic N.</td><td><span class="rank-good">#2</span></td><td><span class="rank-good">#2</span></td><td><span class="rank-good">#1</span></td></tr>
+          <tr><td class="player">Nadal R.</td><td><span class="rank-good">#1</span></td><td><span class="rank-good">#3</span></td><td><span class="rank-good">#4</span></td></tr>
+          <tr><td class="player">Federer R.</td><td><span class="rank-good">#3</span></td><td><span class="rank-good">#1</span></td><td><span class="rank-good">#2</span></td></tr>
+          <tr><td class="player">Murray A.</td><td><span class="rank-bad">#56</span></td><td><span class="rank-good">#4</span></td><td><span class="rank-good">#5</span></td></tr>
+          <tr><td class="player">Ferrer D.</td><td><span class="rank-good">#2</span></td><td><span class="rank-bad">#40</span></td><td><span class="rank-mid">#12</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="why-label">Why two chained CTEs + RANK() PARTITION BY</div>
+      <p class="why-text">This required two CTEs: the first aggregates win counts per player per surface, the second applies RANK() partitioned by Surface — so each surface gets its own independent ranking. A single query without CTEs would require a subquery inside a subquery, which is both hard to read and hard to debug. Chaining CTEs keeps each step testable independently.</p>
+      <p class="why-text" style="margin-top:0.6rem;">I chose RANK() over DENSE_RANK() because the gaps between players matter here — if two players tie at rank 3, the next player should show as rank 5, not 4. That distinction is meaningful when you're comparing "56th on clay" to "2nd on clay."</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Surface ranking — chained CTEs + RANK() PARTITION BY</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">WITH</span> wins_surface <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        Surface,
+        Winner,
+        <span class="fn">COUNT</span>(*) <span class="kw">AS</span> wins
     <span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span>
     <span class="kw">WHERE</span> Surface <span class="kw">IN</span> (<span class="st">'Clay'</span>, <span class="st">'Grass'</span>, <span class="st">'Hard'</span>)
-    <span class="kw">GROUP BY</span> Surface, Winner),
-
-wins_surface_ranked <span class="kw">AS</span> (
-    <span class="kw">SELECT</span> Surface, Winner,
-        <span class="fn">RANK</span>() <span class="kw">OVER</span>(<span class="kw">PARTITION BY</span> Surface <span class="kw">ORDER BY</span> count <span class="kw">DESC</span>) <span class="kw">AS</span> rank_within_surface,
-        count
-    <span class="kw">FROM</span> wins_surface)
-
+    <span class="kw">GROUP BY</span> Surface, Winner
+),
+wins_ranked <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        Surface, Winner, wins,
+        <span class="cm">-- Independent ranking within each surface</span>
+        <span class="fn">RANK</span>() <span class="kw">OVER</span>(
+            <span class="kw">PARTITION BY</span> Surface
+            <span class="kw">ORDER BY</span> wins <span class="kw">DESC</span>
+        ) <span class="kw">AS</span> rank_within_surface
+    <span class="kw">FROM</span> wins_surface
+)
 <span class="kw">SELECT</span> Surface, Winner, rank_within_surface
-<span class="kw">FROM</span> wins_surface_ranked
-<span class="kw">WHERE</span> Winner <span class="kw">IN</span> (<span class="st">'Federer R.'</span>, <span class="st">'Nadal R.'</span>, <span class="st">'Djokovic N.'</span>, <span class="st">'Murray A.'</span>, <span class="st">'Ferrer D.'</span>);</pre>
-  </div>
-
-  <div class="code-section">
-    <div class="code-header">
-      <span class="code-title">Days since last ATP title — CTE + Date arithmetic</span>
-      <span class="code-lang">SQL</span>
+<span class="kw">FROM</span> wins_ranked
+<span class="kw">WHERE</span> Winner <span class="kw">IN</span> (
+    <span class="st">'Federer R.'</span>, <span class="st">'Nadal R.'</span>, <span class="st">'Djokovic N.'</span>,
+    <span class="st">'Murray A.'</span>, <span class="st">'Ferrer D.'</span>
+)
+<span class="kw">ORDER BY</span> Surface, rank_within_surface;</pre>
+      </div>
     </div>
-    <pre><span class="cm">-- CTE holds the date of each player's most recent ATP title
--- then inner join back to calculate elapsed days</span>
-<span class="kw">WITH</span> last_atp_titles <span class="kw">AS</span> (
-    <span class="kw">SELECT</span> Winner, <span class="fn">MAX</span>(Date) <span class="kw">AS</span> last_ATP_title
-    <span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span>
-    <span class="kw">WHERE</span> Winner <span class="kw">IN</span> (<span class="st">'Federer R.'</span>, <span class="st">'Nadal R.'</span>, <span class="st">'Djokovic N.'</span>)
-        <span class="kw">AND</span> Round = <span class="st">'The Final'</span>
-    <span class="kw">GROUP BY</span> Winner)
-
-<span class="kw">SELECT</span> atp.Winner,
-    last_atp_titles.last_atp_title,
-    (<span class="fn">now</span>()::<span class="kw">date</span> - Date::<span class="kw">date</span>) <span class="kw">AS</span> days_since_last_won_tournament,
-    atp.Tournament, atp.Player_1, atp.Player_2
-<span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span> <span class="kw">AS</span> atp
-<span class="kw">INNER JOIN</span> last_atp_titles
-    <span class="kw">ON</span> last_atp_titles.last_ATP_title = atp.Date
-        <span class="kw">AND</span> last_atp_titles.Winner = atp.Winner
-<span class="kw">ORDER BY</span> days_since_last_won_tournament <span class="kw">ASC</span>;</pre>
   </div>
 </div>
 
-<div class="section">
-  <div class="skills-used">
-    <div class="section-label">SQL Functions Used</div>
-    <div class="skills-grid">
-      <div class="skill-item"><span class="skill-dot"></span>CTEs (WITH clauses)</div>
-      <div class="skill-item"><span class="skill-dot"></span>Window Functions (RANK, rolling SUM)</div>
-      <div class="skill-item"><span class="skill-dot"></span>PARTITION BY / ORDER BY</div>
-      <div class="skill-item"><span class="skill-dot"></span>CASE statements</div>
-      <div class="skill-item"><span class="skill-dot"></span>Pivot tables (manual CASE)</div>
-      <div class="skill-item"><span class="skill-dot"></span>JOINs (INNER JOIN)</div>
-      <div class="skill-item"><span class="skill-dot"></span>Date arithmetic & casting</div>
-      <div class="skill-item"><span class="skill-dot"></span>Aggregate functions</div>
-      <div class="skill-item"><span class="skill-dot"></span>ROLLUP</div>
-      <div class="skill-item"><span class="skill-dot"></span>Subqueries</div>
-      <div class="skill-item"><span class="skill-dot"></span>String functions</div>
-      <div class="skill-item"><span class="skill-dot"></span>UNION / UNIONING</div>
+<!-- 03 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">03</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">How large was Federer's lead when Djokovic started winning — and how did it close?</div>
     </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">When Djokovic won his first Australian Open in 2008, <span class="hl">Federer had already accumulated 12 Grand Slam titles</span>. Djokovic's eventual overtake to 24 — from a 12-title deficit — is one of the most remarkable career arcs in sport. A rolling cumulative sum of Grand Slam wins over time makes this visible: Federer's line rises sharply in the early 2000s, Nadal and Djokovic begin their own steep climbs later, and all three converge before Djokovic pulls clear at the end.</p>
+      <div class="timeline" style="margin-top:1rem;">
+        <div style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--green-light);letter-spacing:0.12em;margin-bottom:0.4rem;text-transform:uppercase;">Cumulative GS titles by year (approx.)</div>
+        <div class="tl-row"><div class="tl-label">2004</div><div class="tl-outer"><div class="tl-bar" style="width:4%;background:var(--accent);opacity:0.85;"></div></div><div class="tl-val" style="color:var(--accent)">Fed 1</div></div>
+        <div class="tl-row"><div class="tl-label">2008</div><div class="tl-outer"><div class="tl-bar" style="width:50%;background:var(--accent);opacity:0.85;"></div></div><div class="tl-val" style="color:var(--accent)">Fed 12</div></div>
+        <div class="tl-row"><div class="tl-label">2012</div><div class="tl-outer"><div class="tl-bar" style="width:71%;background:var(--accent);opacity:0.85;"></div></div><div class="tl-val" style="color:var(--accent)">Fed 17</div></div>
+        <div class="tl-row"><div class="tl-label">2012</div><div class="tl-outer"><div class="tl-bar" style="width:50%;background:var(--green-light);opacity:0.7;"></div></div><div class="tl-val" style="color:var(--green-light)">Djk 5</div></div>
+        <div class="tl-row"><div class="tl-label">2016</div><div class="tl-outer"><div class="tl-bar" style="width:50%;background:var(--green-light);opacity:0.7;"></div></div><div class="tl-val" style="color:var(--green-light)">Djk 12</div></div>
+        <div class="tl-row"><div class="tl-label">2023</div><div class="tl-outer"><div class="tl-bar" style="width:100%;background:var(--green-light);opacity:0.85;"></div></div><div class="tl-val" style="color:var(--green-light)">Djk 24</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="why-label">Why a rolling SUM with window functions</div>
+      <p class="why-text">A rolling cumulative sum requires SUM() as a window function with ORDER BY Date inside the OVER() clause — not a standard aggregate. This calculates the running total for each player at each match date, which is what lets you plot the "race" rather than just the final standings. Without the window function, you'd only ever see the end state.</p>
+      <p class="why-text" style="margin-top:0.6rem;">The query filters to Grand Slam finals only, then uses a CTE to calculate the rolling total per player before the outer SELECT shapes the output for comparison. The chronological ORDER BY inside OVER() is essential — if you omit it, the window function treats the entire partition as a single bucket and returns the same total for every row.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Rolling Grand Slam titles — SUM() as window function</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">WITH</span> gs_finals <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        Winner,
+        Date,
+        Tournament
+    <span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span>
+    <span class="kw">WHERE</span> Round = <span class="st">'The Final'</span>
+      <span class="kw">AND</span> Tournament <span class="kw">IN</span> (
+        <span class="st">'Australian Open'</span>, <span class="st">'Roland Garros'</span>,
+        <span class="st">'Wimbledon'</span>, <span class="st">'US Open'</span>
+      )
+      <span class="kw">AND</span> Winner <span class="kw">IN</span> (
+        <span class="st">'Federer R.'</span>, <span class="st">'Nadal R.'</span>, <span class="st">'Djokovic N.'</span>
+      )
+)
+<span class="kw">SELECT</span>
+    Winner,
+    Date,
+    Tournament,
+    <span class="cm">-- Running total per player, ordered chronologically</span>
+    <span class="fn">SUM</span>(<span class="nu">1</span>) <span class="kw">OVER</span>(
+        <span class="kw">PARTITION BY</span> Winner
+        <span class="kw">ORDER BY</span> Date
+        <span class="kw">ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</span>
+    ) <span class="kw">AS</span> cumulative_titles
+<span class="kw">FROM</span> gs_finals
+<span class="kw">ORDER BY</span> Date, Winner;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 04 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">04</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">When did each player last win a title — and what does elapsed time reveal about career phase?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">By calculating the date of each player's most recent ATP title and comparing it to the current date, you can see where each player sits in their career arc. Federer retired in 2022 — his last title date reflects that. Nadal's final years saw declining title frequency before retirement. <span class="hl">Djokovic's most recent title sits notably closer to the present</span>, confirming he remained active at the top of the sport longer than the other two.</p>
+      <p class="finding-text" style="margin-top:0.6rem;">This query is also a practical SQL pattern worth noting: it answers "what is the most recent record per group, and what else do I know about that record?" — a question that comes up constantly in real analytics work (last order per customer, last login per user, most recent transaction per account).</p>
+    </div>
+    <div>
+      <div class="why-label">Why CTE + INNER JOIN (not a subquery in WHERE)</div>
+      <p class="why-text">I needed two things from the same data: the most recent title date per player, and the full match row for that date (tournament name, opponent). A subquery in WHERE can filter to the right rows, but you lose access to the rest of the match columns. The CTE stores each player's MAX(Date), then the INNER JOIN back to the original table retrieves the full row that matches — giving you both the date and the context in one result set.</p>
+      <p class="why-text" style="margin-top:0.6rem;">The date arithmetic (now()::date - Date::date) calculates elapsed days using PostgreSQL-style casting. This is DataCamp's SQL dialect — the cast to ::date ensures the subtraction returns an integer day count rather than a timestamp interval.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Days since last title — CTE + INNER JOIN + date arithmetic</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">WITH</span> last_titles <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        Winner,
+        <span class="fn">MAX</span>(Date) <span class="kw">AS</span> last_title_date
+    <span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span>
+    <span class="kw">WHERE</span> Winner <span class="kw">IN</span> (
+        <span class="st">'Federer R.'</span>, <span class="st">'Nadal R.'</span>, <span class="st">'Djokovic N.'</span>
+    ) <span class="kw">AND</span> Round = <span class="st">'The Final'</span>
+    <span class="kw">GROUP BY</span> Winner
+)
+<span class="kw">SELECT</span>
+    atp.Winner,
+    last_titles.last_title_date,
+    <span class="cm">-- Elapsed days: current date minus last title date</span>
+    (<span class="fn">now</span>()::<span class="kw">date</span> - atp.Date::<span class="kw">date</span>) <span class="kw">AS</span> days_since_last_title,
+    atp.Tournament,
+    atp.Player_1,
+    atp.Player_2
+<span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span> <span class="kw">AS</span> atp
+<span class="kw">INNER JOIN</span> last_titles
+    <span class="kw">ON</span> last_titles.last_title_date = atp.Date
+   <span class="kw">AND</span> last_titles.Winner = atp.Winner
+<span class="kw">ORDER BY</span> days_since_last_title <span class="kw">ASC</span>;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 -->
+<div class="insight-block">
+  <div class="insight-header">
+    <div class="insight-num">05</div>
+    <div class="insight-title-block">
+      <div class="insight-question">Business question</div>
+      <div class="insight-title">Can you see signs of career decline in the data — and does it show differently across surfaces?</div>
+    </div>
+  </div>
+  <div class="insight-body">
+    <div>
+      <div class="finding-label">Finding</div>
+      <p class="finding-text">A pivoted view of win counts per player per year — reshaped so each year becomes a column — makes career arcs visible as a table rather than a chart. The pattern that emerges: <strong>Federer's wins per year peak around 2006–2007 and gradually decline</strong> through the 2010s. Nadal's trajectory is less smooth — gaps appear in injury years, then bursts of dominance return. Djokovic's wins remain high for the longest sustained period of the three.</p>
+      <p class="finding-text" style="margin-top:0.6rem;">This is the kind of output you'd use as a source for a visualisation — the pivot reshapes data from row-per-match to one-row-per-player, which is the format most charting tools expect. Doing the pivot in SQL avoids an intermediate data transformation step in a downstream tool.</p>
+    </div>
+    <div>
+      <div class="why-label">Why a manual pivot with CASE WHEN</div>
+      <p class="why-text">SQL doesn't have a native PIVOT keyword in most dialects (including the one used here). The alternative is a manual pivot: one CASE WHEN per year column, each summing wins only for that year. This is verbose but completely transparent — you can see exactly what each column represents, and adding a new year is one extra CASE WHEN line.</p>
+      <p class="why-text" style="margin-top:0.6rem;">I used ROLLUP in an earlier exploration pass to get row subtotals automatically before committing to the pivot structure. ROLLUP gives you a quick "total" row without a UNION — useful for sense-checking totals before reshaping the data.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-title">Career arc pivot — manual CASE WHEN per year</span><span class="code-lang">SQL</span></div>
+        <pre><span class="kw">SELECT</span>
+    Winner,
+    <span class="cm">-- Each year becomes its own column</span>
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2018</span>
+        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2018,
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2019</span>
+        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2019,
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2020</span>
+        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2020,
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2021</span>
+        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2021,
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2022</span>
+        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2022,
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2023</span>
+        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2023
+<span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span>
+<span class="kw">WHERE</span> Winner <span class="kw">IN</span> (
+    <span class="st">'Federer R.'</span>, <span class="st">'Nadal R.'</span>, <span class="st">'Djokovic N.'</span>
+)
+<span class="kw">GROUP BY</span> Winner;</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="divider"></div>
+
+<!-- CONCLUSION -->
+<div class="section">
+  <div class="section-label">Conclusion</div>
+  <h2>What does the data actually say about the GOAT debate?</h2>
+  <div class="conclusion">
+    <p>The data doesn't settle the debate — but it does sharpen it. The question "is Djokovic better than Federer?" is genuinely contestable depending on what you weight. The question "are these three in a separate class from everyone else?" is not: <strong>the 16-title gap to 4th place is decisive.</strong></p>
+    <p style="margin-top:1rem;">The more interesting finding is about consistency across surfaces. Most elite players have a surface — clay, grass, or hard — where they're vulnerable. The Big Three don't. That all-surface reliability, visible in the PARTITION BY ranking output, is arguably a better definition of dominance than title count alone: it means opponents couldn't gameplan around a surface weakness.</p>
+    <p style="margin-top:1rem;"><strong>The one thing this dataset can't answer:</strong> era adjustment. Djokovic's 24 titles were won against a deeper field than Federer's early ones — but Federer faced a prime Nadal and Djokovic for most of his career. Answering that question properly would require head-to-head data with Elo rating adjustments, which is a natural next analytical step.</p>
+  </div>
+</div>
+
+<!-- TECHNIQUES -->
+<div class="section">
+  <div class="section-label">SQL Techniques Used</div>
+  <div class="techniques">
+    <div class="tech-grid">
+      <div class="tech-item"><span class="tech-dot"></span><span>GROUP BY with COUNT, SUM, MAX</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>Chained CTEs (multiple WITH clauses)</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>RANK() OVER(PARTITION BY) — independent per-surface rankings</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>SUM() as window function for rolling cumulative totals</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>INNER JOIN for retrieving full row at MAX(date)</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>Date arithmetic + ::date casting (PostgreSQL dialect)</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>Manual pivot via CASE WHEN inside SUM()</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>ROLLUP for automatic row subtotals</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>EXTRACT(YEAR FROM ...) for year-level grouping</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>IN filter with named player list</span></div>
+      <div class="tech-item"><span class="tech-dot"></span><span>Data quality correction documented before analysis</span></div>
+    </div>
+  </div>
+
+  <div class="ai-note">
+    <span>AI-assisted development ·</span> Analysis logic and query structure were developed independently. Claude (Anthropic) was used to review the rolling SUM window function syntax and to discuss the RANK() vs DENSE_RANK() choice for surface rankings. All results were validated against known ATP records. This portfolio website was also built with AI assistance — I directed all design and analytical decisions.
   </div>
 </div>
 
@@ -533,6 +500,5 @@ wins_surface_ranked <span class="kw">AS</span> (
 </div>
 
 <footer>© 2025 Paulina Dominikowska · Data Analyst Portfolio</footer>
-
 </body>
 </html>
