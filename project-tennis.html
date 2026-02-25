@@ -146,7 +146,7 @@
     <span class="meta-tag">RANK() PARTITION BY</span>
     <span class="meta-tag">Rolling Aggregation</span>
     <span class="meta-tag">Date Arithmetic</span>
-    <span class="meta-tag">Manual Pivot</span>
+    <span class="meta-tag">ROLLUP</span>
   </div>
   <p class="intro">The "Greatest of All Time" debate in tennis is usually settled by opinion. This project uses 24 years of ATP match data — every professional match from 2000 to 2024 — to ask the same question with SQL. Who actually dominated? On which surfaces? And what does the trajectory of their careers look like when you strip away the commentary and look at the numbers?</p>
 </div>
@@ -242,7 +242,7 @@
     <div>
       <div class="finding-label">Finding</div>
       <p class="finding-text">Surface specialisation is real and dramatic for most players — but not for the Big Three. Murray ranks <strong>top 5 on grass and hard</strong>, but <span class="alert">drops to 56th on clay</span>. Ferrer sits <strong>2nd on clay</strong> but falls to <span class="alert">40th on grass</span>. These are players defined by surface.</p>
-      <p class="finding-text" style="margin-top:0.6rem;">The Big Three never fall outside the top 9 on any surface — including their weakest. <span class="hl">Federer ranks 3rd on clay despite being considered a grass/hard specialist.</span> Nadal ranks highly on all three despite his "clay king" label. This all-surface consistency is arguably what separates them from everyone else more than raw title count.</p>
+      <p class="finding-text" style="margin-top:0.6rem;">The Big Three never fall outside the top 9 on any surface — including their weakest. <span class="hl">Federer ranks 9th on clay despite being considered a grass/hard specialist.</span> Nadal ranks highly on all three despite his "clay king" label. This all-surface consistency is arguably what separates them from everyone else more than raw title count.</p>
       <table class="surface-table" style="margin-top:1rem;">
         <thead>
           <tr>
@@ -324,7 +324,7 @@ wins_ranked <span class="kw">AS</span> (
     <div>
       <div class="why-label">Why a rolling SUM with window functions</div>
       <p class="why-text">A rolling cumulative sum requires SUM() as a window function with ORDER BY Date inside the OVER() clause — not a standard aggregate. This calculates the running total for each player at each match date, which is what lets you plot the "race" rather than just the final standings. Without the window function, you'd only ever see the end state.</p>
-      <p class="why-text" style="margin-top:0.6rem;">The query filters to Grand Slam finals only, then uses a CTE to calculate the rolling total per player before the outer SELECT shapes the output for comparison. The chronological ORDER BY inside OVER() is essential — if you omit it, the window function treats the entire partition as a single bucket and returns the same total for every row.</p>
+      <p class="why-text" style="margin-top:0.6rem;">The query filters to Grand Slam finals only, then uses a CTE to calculate the rolling total per player before the outer SELECT shapes the output for comparison. The chronological ORDER BY inside OVER() is essential — we need to sum each and next GS title as they appear in time.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-title">Rolling Grand Slam titles — SUM() as window function</span><span class="code-lang">SQL</span></div>
         <pre><span class="kw">WITH</span> gs_finals <span class="kw">AS</span> (
@@ -372,11 +372,11 @@ wins_ranked <span class="kw">AS</span> (
     <div>
       <div class="finding-label">Finding</div>
       <p class="finding-text">By calculating the date of each player's most recent ATP title and comparing it to the current date, you can see where each player sits in their career arc. Federer retired in 2022 — his last title date reflects that. Nadal's final years saw declining title frequency before retirement. <span class="hl">Djokovic's most recent title sits notably closer to the present</span>, confirming he remained active at the top of the sport longer than the other two.</p>
-      <p class="finding-text" style="margin-top:0.6rem;">This query is also a practical SQL pattern worth noting: it answers "what is the most recent record per group, and what else do I know about that record?" — a question that comes up constantly in real analytics work (last order per customer, last login per user, most recent transaction per account).</p>
+      <p class="finding-text" style="margin-top:0.6rem;">This query is also a practical SQL pattern worth noting: it answers "what is the most recent record per group, and what else do I know about that record?" — a question that comes up often in real analytics work (last order per customer, last login per user, most recent transaction per account).</p>
     </div>
     <div>
       <div class="why-label">Why CTE + INNER JOIN (not a subquery in WHERE)</div>
-      <p class="why-text">I needed two things from the same data: the most recent title date per player, and the full match row for that date (tournament name, opponent). A subquery in WHERE can filter to the right rows, but you lose access to the rest of the match columns. The CTE stores each player's MAX(Date), then the INNER JOIN back to the original table retrieves the full row that matches — giving you both the date and the context in one result set.</p>
+      <p class="why-text">I needed two things from the same data: the most recent title date per player, and the full match row for that date (tournament name, opponent). I chose a CTE that stores each player's MAX(Date), then the INNER JOIN back to the original table retrieves the full row that matches — giving you both the date and the context in one result set.</p>
       <p class="why-text" style="margin-top:0.6rem;">The date arithmetic (now()::date - Date::date) calculates elapsed days using PostgreSQL-style casting. This is DataCamp's SQL dialect — the cast to ::date ensures the subtraction returns an integer day count rather than a timestamp interval.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-title">Days since last title — CTE + INNER JOIN + date arithmetic</span><span class="code-lang">SQL</span></div>
@@ -414,41 +414,45 @@ wins_ranked <span class="kw">AS</span> (
     <div class="insight-num">05</div>
     <div class="insight-title-block">
       <div class="insight-question">Business question</div>
-      <div class="insight-title">Can you see signs of career decline in the data — and does it show differently across surfaces?</div>
+      <div class="insight-title">How many ATP titles did each player win per year — and what are their career totals in a single query?</div>
     </div>
   </div>
   <div class="insight-body">
     <div>
       <div class="finding-label">Finding</div>
-      <p class="finding-text">A pivoted view of win counts per player per year — reshaped so each year becomes a column — makes career arcs visible as a table rather than a chart. The pattern that emerges: <strong>Federer's wins per year peak around 2006–2007 and gradually decline</strong> through the 2010s. Nadal's trajectory is less smooth — gaps appear in injury years, then bursts of dominance return. Djokovic's wins remain high for the longest sustained period of the three.</p>
-      <p class="finding-text" style="margin-top:0.6rem;">This is the kind of output you'd use as a source for a visualisation — the pivot reshapes data from row-per-match to one-row-per-player, which is the format most charting tools expect. Doing the pivot in SQL avoids an intermediate data transformation step in a downstream tool.</p>
+      <p class="finding-text">Breaking down ATP final wins by year per player reveals the shape of each career rather than just its endpoint. <strong>Federer's peak years cluster in the mid-2000s</strong>, with title counts gradually thinning through the 2010s. Nadal's output is spikier — injury-year gaps followed by bursts of dominance, particularly on clay. <span class="hl">Djokovic sustains high title counts for the longest consecutive stretch</span> of the three, which is what his overall record reflects.</p>
+      <p class="finding-text" style="margin-top:0.6rem;">The output also includes each player's <strong>career total as a subtotal row</strong> — no separate query needed. The year column reads "Total ATP titles" for those rows, making the output self-contained and presentation-ready without post-processing.</p>
     </div>
     <div>
-      <div class="why-label">Why a manual pivot with CASE WHEN</div>
-      <p class="why-text">SQL doesn't have a native PIVOT keyword in most dialects (including the one used here). The alternative is a manual pivot: one CASE WHEN per year column, each summing wins only for that year. This is verbose but completely transparent — you can see exactly what each column represents, and adding a new year is one extra CASE WHEN line.</p>
-      <p class="why-text" style="margin-top:0.6rem;">I used ROLLUP in an earlier exploration pass to get row subtotals automatically before committing to the pivot structure. ROLLUP gives you a quick "total" row without a UNION — useful for sense-checking totals before reshaping the data.</p>
+      <div class="why-label">Why ROLLUP + COALESCE</div>
+      <p class="why-text">GROUP BY ROLLUP(date_part('year', Date)) automatically generates an extra row per player where the year grouping is NULL — that NULL row holds the grand total for that player across all years. Without ROLLUP you'd need a separate COUNT(*) query or a UNION to get the same totals alongside the year-by-year breakdown.</p>
+      <p class="why-text" style="margin-top:0.6rem;">COALESCE handles the NULL that ROLLUP produces: it substitutes the label "Total ATP titles" wherever year would otherwise show as NULL. This is a small touch but important — raw NULLs in output are ambiguous (is it missing data or an intentional aggregate?). Labelling it explicitly makes the query's intent clear to anyone reading the result, not just the person who wrote it.</p>
       <div class="code-block">
-        <div class="code-header"><span class="code-title">Career arc pivot — manual CASE WHEN per year</span><span class="code-lang">SQL</span></div>
+        <div class="code-header"><span class="code-title">Yearly titles + career totals — ROLLUP + COALESCE</span><span class="code-lang">SQL</span></div>
         <pre><span class="kw">SELECT</span>
+    <span class="cm">-- COALESCE substitutes the NULL that ROLLUP generates</span>
+    <span class="cm">-- for the subtotal row with a readable label</span>
+    <span class="fn">COALESCE</span>(
+        <span class="fn">date_part</span>(<span class="st">'year'</span>, Date)::<span class="kw">TEXT</span>,
+        <span class="st">'Total ATP titles'</span>
+    ) <span class="kw">AS</span> year,
     Winner,
-    <span class="cm">-- Each year becomes its own column</span>
-    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2018</span>
-        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2018,
-    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2019</span>
-        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2019,
-    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2020</span>
-        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2020,
-    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2021</span>
-        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2021,
-    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2022</span>
-        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2022,
-    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> <span class="fn">EXTRACT</span>(YEAR <span class="kw">FROM</span> Date::<span class="kw">date</span>) = <span class="nu">2023</span>
-        <span class="kw">THEN</span> <span class="nu">1</span> <span class="kw">ELSE</span> <span class="nu">0</span> <span class="kw">END</span>) <span class="kw">AS</span> wins_2023
+    <span class="fn">COUNT</span>(*) <span class="kw">AS</span> ATP_titles
 <span class="kw">FROM</span> <span class="st">'atp_tennis.csv'</span>
 <span class="kw">WHERE</span> Winner <span class="kw">IN</span> (
     <span class="st">'Federer R.'</span>, <span class="st">'Nadal R.'</span>, <span class="st">'Djokovic N.'</span>
-)
-<span class="kw">GROUP BY</span> Winner;</pre>
+) <span class="kw">AND</span> Round = <span class="st">'The Final'</span>
+<span class="cm">-- ROLLUP on year adds a NULL subtotal row per player</span>
+<span class="cm">-- giving career totals alongside year-by-year breakdown</span>
+<span class="kw">GROUP BY</span> Winner, <span class="fn">ROLLUP</span>(<span class="fn">date_part</span>(<span class="st">'year'</span>, Date))
+<span class="kw">ORDER BY</span> Winner, year <span class="kw">ASC</span>;
+
+<span class="cm">-- Sample output (Djokovic rows):
+-- 2008  Djokovic N.  1
+-- 2011  Djokovic N.  3
+-- 2012  Djokovic N.  3
+-- ...
+-- Total ATP titles  Djokovic N.  24</span></pre>
       </div>
     </div>
   </div>
@@ -463,7 +467,7 @@ wins_ranked <span class="kw">AS</span> (
   <div class="section-label">Conclusion</div>
   <h2>What does the data actually say about the GOAT debate?</h2>
   <div class="conclusion">
-    <p>The data doesn't settle the debate — but it does sharpen it. The question "is Djokovic better than Federer?" is genuinely contestable depending on what you weight. The question "are these three in a separate class from everyone else?" is not: <strong>the 16-title gap to 4th place is decisive.</strong></p>
+    <p>The data doesn't settle the debate — but it does sharpen it. The question "is Djokovic better than Federer?" is hard to answer objectively while there are other factors coming into play: technique, personal likings and how much one takes pleasure from watching each of the players. The question "are these three in a separate class from everyone else?" is not: <strong>the 16-title gap to 4th place is decisive.</strong></p>
     <p style="margin-top:1rem;">The more interesting finding is about consistency across surfaces. Most elite players have a surface — clay, grass, or hard — where they're vulnerable. The Big Three don't. That all-surface reliability, visible in the PARTITION BY ranking output, is arguably a better definition of dominance than title count alone: it means opponents couldn't gameplan around a surface weakness.</p>
     <p style="margin-top:1rem;"><strong>The one thing this dataset can't answer:</strong> era adjustment. Djokovic's 24 titles were won against a deeper field than Federer's early ones — but Federer faced a prime Nadal and Djokovic for most of his career. Answering that question properly would require head-to-head data with Elo rating adjustments, which is a natural next analytical step.</p>
   </div>
@@ -490,7 +494,7 @@ wins_ranked <span class="kw">AS</span> (
   </div>
 
   <div class="ai-note">
-    <span>AI-assisted development ·</span> Analysis logic and query structure were developed independently. Claude (Anthropic) was used to review the rolling SUM window function syntax and to discuss the RANK() vs DENSE_RANK() choice for surface rankings. All results were validated against known ATP records. This portfolio website was also built with AI assistance — I directed all design and analytical decisions.
+    <span>AI-assisted development ·</span> Analysis logic and query structure were developed independently. Claude (Anthropic) was used to create HTML code for the portfolio website and help document the reasoning behind method choices. All query outputs were validated against known ATP records.This portfolio website was also built with AI assistance for code generation — I directed all design, analytical decisions, and deployment - Claude prepared the code.
   </div>
 </div>
 
